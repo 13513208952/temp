@@ -50,14 +50,14 @@ public final class MusicArtwork {
 
     /** One owned decode result; the slot stays busy until an ACTUAL recycle is observed. */
     public final class OwnedBitmap implements AutoCloseable {
-        private final Bitmap bitmap;private boolean closed;private boolean released;
+        private final Bitmap bitmap;private volatile boolean closed;private volatile boolean released;
         private OwnedBitmap(Bitmap bitmap){this.bitmap=bitmap;}
         public Bitmap bitmap(){return bitmap;}
         public boolean isClosed(){return closed;}
         /** AutoCloseable form; unknown recycle keeps the slot busy (see {@link #release()}). */
         @Override public void close(){release();}
         /** Idempotent release; true only when the slot has actually been released. */
-        public boolean release(){
+        public synchronized boolean release(){
             if(closed)return released;
             boolean recycled;
             try{bitmap.recycle();recycled=bitmap.isRecycled();}
@@ -71,12 +71,12 @@ public final class MusicArtwork {
 
     private final AtomicLong latestGeneration=new AtomicLong();
     private final AtomicBoolean slotBusy=new AtomicBoolean();
-    /** Claim a request; a later claim supersedes earlier ones. */
+    /** Claim strictly newer work. Stale or duplicate generations return 0, NEVER a current token. */
     public long begin(long generation){
         if(generation<1)throw new IllegalArgumentException("Invalid artwork generation");
         while(true){
             long current=latestGeneration.get();
-            if(generation<=current)return current;
+            if(generation<=current)return 0;
             if(latestGeneration.compareAndSet(current,generation))return generation;
         }
     }
@@ -109,6 +109,7 @@ public final class MusicArtwork {
             if(decoded==null)return null;
             // The decoder may return dimensions other than the estimate: validate ACTUAL pixels.
             if(generation!=latestGeneration.get() || decoded.getWidth()<1 || decoded.getHeight()<1
+                    || decoded.getWidth()>MAX_DIMENSION || decoded.getHeight()>MAX_DIMENSION
                     || (long)decoded.getWidth()*decoded.getHeight()>MAX_DECODED_PIXELS)return null;
             keepSlot=true;
             return new OwnedBitmap(decoded);

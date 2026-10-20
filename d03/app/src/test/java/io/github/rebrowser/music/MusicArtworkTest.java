@@ -28,7 +28,8 @@ public final class MusicArtworkTest {
         assertEquals(1,artwork.begin(1));
         assertEquals(5,artwork.begin(5));
         assertEquals(5,artwork.latestGeneration());
-        assertEquals(5,artwork.begin(3));
+        assertEquals(0,artwork.begin(3)); // older work must not receive the new valid token
+        assertEquals(0,artwork.begin(5)); // duplicate claim also has no ownership
         assertThrows(IllegalArgumentException.class,()->artwork.begin(0));
         assertThrows(IllegalArgumentException.class,()->artwork.decodeOwned(null,5));
         assertThrows(IllegalArgumentException.class,()->artwork.decodeOwned(new byte[MusicArtwork.MAX_ENCODED_BYTES+1],5));
