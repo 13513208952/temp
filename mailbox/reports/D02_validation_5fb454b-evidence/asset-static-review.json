@@ -1,0 +1,25 @@
+{
+  "revision": "D02-review",
+  "checks": {
+    "fixedCsp": true,
+    "noInlineScript": true,
+    "noInlineHandler": true,
+    "noRemoteUrlInHtml": true,
+    "noFormFrameObject": true,
+    "readerCssNoImportOrUrl": true,
+    "readerJsNoHtmlInjection": true,
+    "readerJsNoNetworkOrMessage": true,
+    "musicNoImportOrUrl:music-phone.css": true,
+    "musicScoped:music-phone.css": true,
+    "musicDoesNotHideAuth:music-phone.css": true,
+    "musicNoImportOrUrl:music-window.css": true,
+    "musicScoped:music-window.css": true,
+    "musicDoesNotHideAuth:music-window.css": true,
+    "musicNoImportOrUrl:music-desktop.css": true,
+    "musicScoped:music-desktop.css": true,
+    "musicDoesNotHideAuth:music-desktop.css": true
+  },
+  "allPassed": true,
+  "actualRenderOrCspEnforcementExecuted": false,
+  "note": "Static text assertions on the reviewed candidate; no Gecko/WebView render or CSP enforcement was run."
+}
