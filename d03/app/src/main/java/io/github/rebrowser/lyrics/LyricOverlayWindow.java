@@ -90,6 +90,7 @@ public final class LyricOverlayWindow extends FrameLayout {
     private BrowserToolbar.Binding binding;private Object frame;
     private int x,y;
     private int activePointerId=-1;
+    private LyricOverlayController.Mode mode=LyricOverlayController.Mode.CLOSED;
 
     public LyricOverlayWindow(Context context){
         super(context);
@@ -101,7 +102,11 @@ public final class LyricOverlayWindow extends FrameLayout {
         unbindButton=new Button(context);
         unbindButton.setText("隐藏歌词");
         unbindButton.setMinimumHeight(dp(48));
-        addView(current);addView(next);addView(modeLabel);addView(unbindButton);
+        // FrameLayout overlays direct children. Keep lyrics, state and control in one vertical subtree.
+        android.widget.LinearLayout content=new android.widget.LinearLayout(context);
+        content.setOrientation(android.widget.LinearLayout.VERTICAL);
+        content.addView(current);content.addView(next);content.addView(modeLabel);content.addView(unbindButton);
+        addView(content);
         setContentDescription("歌词浮层（应用内）");
     }
 
@@ -110,21 +115,22 @@ public final class LyricOverlayWindow extends FrameLayout {
         if(binding==null || display==null || model==null)throw new IllegalArgumentException("Missing lyric overlay binding");
         binding.check();
         clearViewState();
-        this.binding=binding;this.drag=model;this.frame=new Object();
+        this.binding=binding;this.drag=model;this.frame=new Object();this.mode=display.mode();
         activePointerId=-1;
         current.setText(display.currentLine());
         next.setText(display.nextLine());
-        modeLabel.setText(display.modeLabel()+" · 拖动调整位置（单指）");
+        modeLabel.setText(display.modeLabel()+(mode==LyricOverlayController.Mode.VISIBLE_UNLOCKED?" · 拖动调整位置（单指）":""));
         current.setContentDescription("当前歌词：" + display.currentLine());
         next.setContentDescription("下一句：" + display.nextLine());
-        setOnTouchListener((view,event)->handleTouch(event));
+        setOnTouchListener(mode==LyricOverlayController.Mode.VISIBLE_UNLOCKED?(view,event)->handleTouch(event):null);
     }
 
     /** Bounds/rotation change: the old gesture and old coordinates cannot survive it. */
     public void rebindBounds(DragModel model){
         ownerThread();
         if(model==null)throw new IllegalArgumentException("Missing drag model");
-        drag=model;activePointerId=-1;
+        if(drag!=null)drag.cancel();
+        drag=model;activePointerId=-1;x=0;y=0;
         setTranslationX(0);setTranslationY(0);
     }
 
@@ -133,7 +139,10 @@ public final class LyricOverlayWindow extends FrameLayout {
         ownerThread();
         if(frame==null || binding==null)return;
         try{binding.check();}catch(SecurityException | IllegalStateException stale){return;}
-        x=appliedX;y=appliedY;
+        if(drag==null)return;
+        // Native-applied positions must be reconciled to CURRENT bounds, not blindly displayed.
+        x=drag.clampX(DragModel.coord(appliedX));
+        y=drag.clampY(DragModel.coord(appliedY));
         setTranslationX(x*getResources().getDisplayMetrics().density);
         setTranslationY(y*getResources().getDisplayMetrics().density);
     }
@@ -143,7 +152,9 @@ public final class LyricOverlayWindow extends FrameLayout {
         clearViewState();
     }
     private void clearViewState(){
+        if(drag!=null)drag.cancel();
         binding=null;drag=null;frame=null;x=0;y=0;activePointerId=-1;
+        mode=LyricOverlayController.Mode.CLOSED;
         setOnTouchListener(null);
         current.setText("");next.setText("");modeLabel.setText("");
         current.setContentDescription(null);next.setContentDescription(null);modeLabel.setContentDescription(null);
@@ -155,15 +166,17 @@ public final class LyricOverlayWindow extends FrameLayout {
     /** Local drag intent only; global/system window placement remains with the native owner. */
     boolean handleTouch(MotionEvent event){
         DragModel model=drag;BrowserToolbar.Binding captured=binding;Object exactFrame=frame;
-        if(event==null || model==null || captured==null || exactFrame==null)return false;
+        if(event==null || model==null || captured==null || exactFrame==null
+                || mode!=LyricOverlayController.Mode.VISIBLE_UNLOCKED)return false;
         try{
             captured.check();
             if(frame!=exactFrame || binding!=captured)return false;
             float density=getResources().getDisplayMetrics().density;
+            if(!Float.isFinite(density) || density<=0f)throw new IllegalStateException("Invalid display density");
             switch(event.getActionMasked()){
                 case MotionEvent.ACTION_DOWN:
                     activePointerId=event.getPointerId(0);
-                    model.start(activePointerId,event.getPointerCount(),x,y,(int)(event.getX()/density),(int)(event.getY()/density));
+                    model.start(activePointerId,event.getPointerCount(),x,y,rawDp(event.getRawX(),density),rawDp(event.getRawY(),density));
                     return true;
                 case MotionEvent.ACTION_POINTER_DOWN:
                     model.cancel();activePointerId=-1;return true;
@@ -171,7 +184,7 @@ public final class LyricOverlayWindow extends FrameLayout {
                     int index=event.findPointerIndex(activePointerId);
                     if(index<0 || event.getPointerCount()!=1){model.cancel();activePointerId=-1;return true;}
                     if(!model.active())return true;
-                    model.movePointer(event.getPointerId(index),event.getPointerCount(),(int)(event.getX(index)/density),(int)(event.getY(index)/density));
+                    model.movePointer(event.getPointerId(index),event.getPointerCount(),rawDp(event.getRawX(),density),rawDp(event.getRawY(),density));
                     return true;
                 }
                 case MotionEvent.ACTION_POINTER_UP:{
@@ -195,6 +208,12 @@ public final class LyricOverlayWindow extends FrameLayout {
             model.cancel();activePointerId=-1;
             return false;
         }
+    }
+    private static int rawDp(float px,float density){
+        if(!Float.isFinite(px) || !Float.isFinite(density) || density<=0f)throw new IllegalArgumentException("Invalid pointer");
+        double result=px/density;
+        if(result< -MAX_COORD || result>MAX_COORD)throw new IllegalArgumentException("Pointer coordinate out of bounds");
+        return (int)Math.round(result);
     }
     int appliedX(){return x;}
     int appliedY(){return y;}

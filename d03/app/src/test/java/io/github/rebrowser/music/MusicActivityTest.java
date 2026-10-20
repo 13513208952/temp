@@ -18,9 +18,11 @@ public final class MusicActivityTest {
         MusicState playing=new MusicState(MusicState.Account.UNKNOWN,MusicState.Playback.PLAYING,MusicState.Focus.NONE,"t","a",null,10,100,1,0);
         MusicState paused=new MusicState(MusicState.Account.UNKNOWN,MusicState.Playback.PAUSED,MusicState.Focus.NONE,"t","a",null,10,100,1,0);
         MusicState unknownDuration=new MusicState(MusicState.Account.UNKNOWN,MusicState.Playback.PLAYING,MusicState.Focus.NONE,"t","a",null,10,-1,1,0);
-        assertTrue(MusicActivity.Model.seekEnabled(playing));
-        assertFalse(MusicActivity.Model.seekEnabled(paused));
-        assertFalse(MusicActivity.Model.seekEnabled(unknownDuration));
+        assertFalse(MusicActivity.Model.seekEnabled(playing)); // playback is not permission
+        assertTrue(MusicActivity.Model.seekEnabled(playing,true));
+        assertTrue(MusicActivity.Model.seekEnabled(paused,true)); // native may offer paused seek
+        assertFalse(MusicActivity.Model.seekEnabled(paused,false));
+        assertFalse(MusicActivity.Model.seekEnabled(unknownDuration,true));
         assertFalse(MusicActivity.Model.seekEnabled(null));
     }
 

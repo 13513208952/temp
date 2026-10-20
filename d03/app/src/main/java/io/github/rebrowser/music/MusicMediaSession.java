@@ -71,19 +71,13 @@ public final class MusicMediaSession {
                 speed,displayEstimate,actions);
     }
 
-    /** Legacy conservative mapping: derives only the play/pause matching the REPORTED state. */
+    /** Legacy API: only two explicitly supplied SKIP offers are safe to project.
+     * A reported PLAYING/PAUSED label is NOT an action offer, and duration is NOT seek permission. */
     public static Projection project(MusicState observed,boolean ownerOffersNext,boolean ownerOffersPrevious){
         if(observed==null)throw new IllegalArgumentException("Missing music observation");
         EnumSet<Action> offered=EnumSet.noneOf(Action.class);
-        switch(observed.playback()){
-            case PLAYING:offered.add(Action.PAUSE);break;
-            case PAUSED:offered.add(Action.PLAY);break;
-            case IDLE:case ENDED:offered.add(Action.PLAY);break;
-            default:break; // UNKNOWN/BUFFERING: no automatic transport action
-        }
         if(ownerOffersNext)offered.add(Action.SKIP_NEXT);
         if(ownerOffersPrevious)offered.add(Action.SKIP_PREVIOUS);
-        if(observed.hasReportedDuration() && observed.durationMs()>0)offered.add(Action.SEEK);
         return project(observed,offered,null);
     }
 

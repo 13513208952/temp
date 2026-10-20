@@ -7,7 +7,9 @@ import org.junit.Test;
 public final class MusicMediaSessionTest {
     private static MusicState state(MusicState.Playback playback,long duration){return new MusicState(MusicState.Account.REPORTED_SIGNED_IN,playback,MusicState.Focus.NONE,"歌","人",null,10,duration,1,0);}
     @Test public void playingProjectionOffersPauseAndBoundedSeek(){
-        MusicMediaSession.Projection projection=MusicMediaSession.project(state(MusicState.Playback.PLAYING,100),true,false);
+        MusicMediaSession.Projection projection=MusicMediaSession.project(
+                state(MusicState.Playback.PLAYING,100),
+                java.util.EnumSet.of(MusicMediaSession.Action.PAUSE,MusicMediaSession.Action.SEEK,MusicMediaSession.Action.SKIP_NEXT),null);
         assertEquals(MusicMediaSession.Transport.PLAYING,projection.transport());
         assertTrue(projection.actions().contains(MusicMediaSession.Action.PAUSE));
         assertTrue(projection.actions().contains(MusicMediaSession.Action.SKIP_NEXT));
@@ -44,9 +46,15 @@ public final class MusicMediaSessionTest {
     }
     @Test public void pausedAndUnknownDurationDoNotFabricateSeek(){
         MusicMediaSession.Projection projection=MusicMediaSession.project(state(MusicState.Playback.PAUSED,-1),false,false);
-        assertTrue(projection.actions().contains(MusicMediaSession.Action.PLAY));
+        assertFalse(projection.actions().contains(MusicMediaSession.Action.PLAY)); // no inferred owner offer
         assertFalse(projection.actions().contains(MusicMediaSession.Action.SEEK));
         assertEquals(0f,projection.reportedSpeed(),0f);
         assertThrows(IllegalArgumentException.class,()->MusicMediaSession.project(null,false,false));
+    }
+    @Test public void legacyProjectionDoesNotInferActionsFromState(){
+        MusicMediaSession.Projection playing=MusicMediaSession.project(state(MusicState.Playback.PLAYING,100),false,false);
+        MusicMediaSession.Projection paused=MusicMediaSession.project(state(MusicState.Playback.PAUSED,100),false,false);
+        assertTrue(playing.actions().isEmpty());
+        assertTrue(paused.actions().isEmpty());
     }
 }
