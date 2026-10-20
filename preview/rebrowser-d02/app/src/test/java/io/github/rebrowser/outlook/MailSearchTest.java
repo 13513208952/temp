@@ -32,7 +32,7 @@ public final class MailSearchTest {
         assertThrows(IllegalArgumentException.class,()->search("abc","",10));
         assertThrows(IllegalArgumentException.class,()->search("abc",new String(new char[65]).replace('\0','a'),10));
     }
-    @Test public void overlappingLiteralIsNotReEmittedAcrossReaderChunks(){
+    @Test public void overlappingLiteralIsNotReEmittedAcrossReaderChunks()throws java.io.IOException{
         MailSearch.Result single=search(chunked("aaa",2),"aa",10,()->false);
         assertEquals(1,single.matches().size());
         assertEquals(0,single.matches().get(0).offset());

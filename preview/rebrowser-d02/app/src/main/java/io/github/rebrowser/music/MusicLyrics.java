@@ -129,7 +129,7 @@ public final class MusicLyrics {
         if(!digits(minutes,1,3))return null;
         int dot=rest.indexOf('.');
         String secondsText=dot<0?rest:rest.substring(0,dot), fraction=dot<0?"":rest.substring(dot+1);
-        if(!digits(secondsText,1,2) || !digits(fraction,0,3))return null;
+        if(!digits(secondsText,1,2) || !digits(fraction,dot<0?0:1,3))return null; // a dot REQUIRES 1..3 digits
         long minutesValue=Long.parseLong(minutes),secondsValue=Long.parseLong(secondsText);
         if(secondsValue>59)return null;
         // LRC 1/2/3 fractional digits carry 100/10/1 millisecond precision.

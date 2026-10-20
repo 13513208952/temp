@@ -41,6 +41,13 @@ public final class MusicLyricsTest {
         assertTrue(lyrics.overlappingWords());
         assertThrows(IllegalArgumentException.class,()->MusicLyrics.parse("",java.util.Arrays.asList((MusicLyrics.Word)null)));
     }
+    @Test public void dotRequiresAtLeastOneFractionDigit(){
+        assertEquals(1,MusicLyrics.parseLrc("[00:01.]x\n[00:02.0]ok").lines().size());
+        assertEquals("ok",MusicLyrics.parseLrc("[00:01.]x\n[00:02.0]ok").lines().get(0).text());
+        assertTrue(MusicLyrics.parseLrc("[00:01.]x").lines().isEmpty());
+        assertEquals(1500,MusicLyrics.parseLrc("[00:01.5]x").lines().get(0).timeMs());
+        assertEquals(1005,MusicLyrics.parseLrc("[00:01.005]x").lines().get(0).timeMs());
+    }
     @Test public void invalidStampsAreIgnoredRatherThanGuessed(){
         MusicLyrics.Lyrics lyrics=MusicLyrics.parseLrc("[00:99.00]bad\n[abc]bad\n[00:00.00]ok");
         assertEquals(1,lyrics.lines().size());
