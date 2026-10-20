@@ -24,7 +24,7 @@ public final class MusicArtwork {
         public int width(){return width;}
         public int height(){return height;}
         public int sampleSize(){return sampleSize;}
-        public long decodedPixels(){return (long)(width/sampleSize)*(height/sampleSize);}
+        public long decodedPixels(){return ((width+(long)sampleSize-1)/sampleSize)*((height+(long)sampleSize-1)/sampleSize);}
     }
     public enum Format { JPEG, PNG, WEBP, UNKNOWN }
 
@@ -74,7 +74,11 @@ public final class MusicArtwork {
     /** Claim a request; a later claim supersedes earlier ones. */
     public long begin(long generation){
         if(generation<1)throw new IllegalArgumentException("Invalid artwork generation");
-        return latestGeneration.accumulateAndGet(generation,Math::max);
+        while(true){
+            long current=latestGeneration.get();
+            if(generation<=current)return current;
+            if(latestGeneration.compareAndSet(current,generation))return generation;
+        }
     }
     public long latestGeneration(){return latestGeneration.get();}
     public boolean busy(){return slotBusy.get();}
@@ -103,14 +107,18 @@ public final class MusicArtwork {
             options.inPreferredConfig=Bitmap.Config.ARGB_8888;
             decoded=BitmapFactory.decodeByteArray(encoded,0,encoded.length,options);
             if(decoded==null)return null;
-            if(generation!=latestGeneration.get())return null;
+            // The decoder may return dimensions other than the estimate: validate ACTUAL pixels.
+            if(generation!=latestGeneration.get() || decoded.getWidth()<1 || decoded.getHeight()<1
+                    || (long)decoded.getWidth()*decoded.getHeight()>MAX_DECODED_PIXELS)return null;
             keepSlot=true;
             return new OwnedBitmap(decoded);
         }finally{
             if(!keepSlot){
                 if(decoded!=null){
-                    try{decoded.recycle();}catch(RuntimeException unknown){/* slot stays busy below */}
-                    if(decoded.isRecycled())slotBusy.set(false);
+                    boolean recycled=false;
+                    try{decoded.recycle();recycled=decoded.isRecycled();}
+                    catch(RuntimeException unknown){/* uncertain native disposal: keep the slot busy */}
+                    if(recycled)slotBusy.set(false);
                 }else slotBusy.set(false);
             }
         }

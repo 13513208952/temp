@@ -55,13 +55,19 @@ public final class MailSearch {
      * on invalid arguments, cancellation and read failure (close failure is reported).
      */
     public static Result search(Reader authorizedReader,String literal,int maxResults,BooleanSupplier cancelled) throws IOException {
-        if(authorizedReader==null || cancelled==null)throw new IllegalArgumentException("Authorized reader and cancellation source required");
-        if(literal==null || literal.isEmpty() || literal.length()>MAX_NEEDLE_CHARS)throw new IllegalArgumentException("Invalid literal length");
-        text(literal);
-        if(maxResults<1 || maxResults>MAX_RESULTS)throw new IllegalArgumentException("Invalid result limit");
+        if(authorizedReader==null)throw new IllegalArgumentException("Authorized reader required");
+        // The caller transfers ownership at entry. Even bad arguments must not leak that reader.
+        Result completed;
         try(Reader reader=authorizedReader){
-            return scan(reader,literal,maxResults,cancelled);
+            if(cancelled==null || literal==null || literal.isEmpty() || literal.length()>MAX_NEEDLE_CHARS)
+                throw new IllegalArgumentException("Invalid literal or cancellation source");
+            text(literal);
+            if(maxResults<1 || maxResults>MAX_RESULTS)throw new IllegalArgumentException("Invalid result limit");
+            completed=scan(reader,literal,maxResults,cancelled);
         }
+        // Closing can block; cancellation received DURING close must also suppress publication.
+        checkCancelled(cancelled);
+        return completed;
     }
 
     private static Result scan(Reader reader,String needle,int maxResults,BooleanSupplier cancelled) throws IOException {
@@ -75,11 +81,13 @@ public final class MailSearch {
         StopReason stop=StopReason.EOF;
         while(true){
             checkCancelled(cancelled);
-            int read=reader.read(buffer,0,buffer.length);
+            if(position>=MAX_SCANNED_CHARS){stop=StopReason.SCAN_LIMIT;break;}
+            int request=(int)Math.min((long)buffer.length,MAX_SCANNED_CHARS-position);
+            int read=reader.read(buffer,0,request);
             checkCancelled(cancelled);
-            if(read<0)break;
+            if(read== -1)break;
+            if(read< -1 || read>request)throw new IOException("Invalid reader count");
             if(read==0){if(++zeroReads>MAX_ZERO_READS)throw new IOException("Reader made no progress");continue;}
-            if(read>buffer.length)throw new IOException("Invalid reader count");
             zeroReads=0;
             for(int i=0;i<read;i++){
                 char c=buffer[i];
@@ -97,7 +105,7 @@ public final class MailSearch {
                     if(start>=nextEligible){
                         matches.add(new Match(start,snippet(tail,position,start,needle.length())));
                         nextEligible=start+needle.length();
-                        if(matches.size()>=maxResults){stop=StopReason.RESULT_LIMIT;break;}
+                        if(matches.size()>=maxResults){position++;stop=StopReason.RESULT_LIMIT;break;}
                     }
                     matched=failure[matched-1];
                 }
@@ -106,7 +114,7 @@ public final class MailSearch {
             if(stop==StopReason.RESULT_LIMIT)break;
             if(position>=MAX_SCANNED_CHARS){stop=StopReason.SCAN_LIMIT;break;}
         }
-        if(stop==StopReason.EOF && pendingHighSurrogate)throw new IOException("Broken UTF-16 at end of scanned text");
+        if(pendingHighSurrogate)throw new IOException("Unpaired UTF-16 high surrogate at scan boundary");
         checkCancelled(cancelled);
         return new Result(matches,stop,Math.min(position,MAX_SCANNED_CHARS));
     }
@@ -141,7 +149,8 @@ public final class MailSearch {
         long wantEnd=start+needleLength+MAX_SNIPPET_CHARS/2;
         int from=(int)Math.max(0,wantStart-tailStart);
         int to=(int)Math.min(tail.length(),wantEnd-tailStart);
-        if(from>0 && Character.isLowSurrogate(tail.charAt(from)))from++;
+        if(to-from>MAX_SNIPPET_CHARS)from=to-MAX_SNIPPET_CHARS;
+        if(from>0 && from<tail.length() && Character.isLowSurrogate(tail.charAt(from)))from++;
         if(to<tail.length() && Character.isLowSurrogate(tail.charAt(to)))to--;
         if(to<from)to=from;
         StringBuilder cleaned=new StringBuilder(to-from);

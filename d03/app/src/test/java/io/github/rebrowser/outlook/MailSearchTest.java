@@ -108,4 +108,56 @@ public final class MailSearchTest {
         assertThrows(java.io.IOException.class,()->MailSearch.search(zero,"a",10,()->false));
         assertTrue(reads[0]<100);
     }
+    @Test public void hardScanLimitNeverReadsOrMatchesBeyondBudget() throws Exception {
+        final long[] produced={0};final int[] maxRequest={0};final boolean[] closed={false};
+        java.io.Reader source=new java.io.Reader(){
+            @Override public int read(char[] b,int off,int len){
+                maxRequest[0]=Math.max(maxRequest[0],len);
+                int n=Math.min(len,8192);
+                java.util.Arrays.fill(b,off,off+n,'a');
+                for(int i=0;i<n;i++)if(produced[0]+i>=MailSearch.MAX_SCANNED_CHARS)b[off+i]='X';
+                produced[0]+=n;return n;
+            }
+            @Override public void close(){closed[0]=true;}
+        };
+        MailSearch.Result result=MailSearch.search(source,"X",10,()->false);
+        assertEquals(MailSearch.StopReason.SCAN_LIMIT,result.stopReason());
+        assertEquals(MailSearch.MAX_SCANNED_CHARS,result.scannedChars());
+        assertEquals(MailSearch.MAX_SCANNED_CHARS,produced[0]);
+        assertEquals(0,result.matches().size());
+        assertTrue(closed[0]);
+        assertTrue(maxRequest[0]<=MailSearch.CHUNK_CHARS);
+    }
+    @Test public void invalidArgumentsTransferReaderOwnershipAndCloseTimeCancellationWins() throws Exception {
+        final boolean[] closed={false};
+        java.io.Reader invalid=new java.io.StringReader("abc"){
+            @Override public void close(){closed[0]=true;super.close();}
+        };
+        assertThrows(IllegalArgumentException.class,()->MailSearch.search(invalid,"",10,()->false));
+        assertTrue(closed[0]);
+        final boolean[] doneClosing={false};
+        java.io.Reader reader=new java.io.StringReader("abc"){
+            @Override public void close(){doneClosing[0]=true;super.close();}
+        };
+        assertThrows(java.io.InterruptedIOException.class,
+                ()->MailSearch.search(reader,"x",10,()->doneClosing[0]));
+        assertTrue(doneClosing[0]);
+    }
+    @Test public void resultCountAndSnippetAreBoundedExactly() throws Exception {
+        MailSearch.Result two=search("aaaaa","a",2);
+        assertEquals(2,two.scannedChars());
+        String target="abcdefghijklmnopqrstuvwxabcdefghijklmnopqrstuvwxabcdefghijklmnopqrstuvwx";
+        assertTrue(target.length()>64);
+        String needle=target.substring(0,64);
+        MailSearch.Result one=search("z".repeat(150)+needle,needle,5);
+        assertEquals(1,one.matches().size());
+        assertTrue(one.matches().get(0).snippet().length()<=MailSearch.MAX_SNIPPET_CHARS);
+    }
+    @Test public void malformedNegativeReaderCountIsNotEof() {
+        java.io.Reader invalid=new java.io.Reader(){
+            public int read(char[] dst,int offset,int length){return -2;}
+            public void close(){}
+        };
+        assertThrows(IOException.class,()->MailSearch.search(invalid,"x",10,()->false));
+    }
 }

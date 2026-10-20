@@ -35,4 +35,10 @@ public final class MusicArtworkTest {
         assertFalse(artwork.busy());
         assertNull(artwork.decodeOwned(new byte[16],5)); // unknown signature: rejected before any Android call
     }
+    @Test public void roundedUpDimensionsAreCountedInPixelBudget(){
+        MusicArtwork.Plan plan=MusicArtwork.plan(1025,1025);
+        assertEquals(2,plan.sampleSize());
+        assertEquals(513L*513,plan.decodedPixels());
+        assertTrue(plan.decodedPixels()<=MusicArtwork.MAX_DECODED_PIXELS);
+    }
 }

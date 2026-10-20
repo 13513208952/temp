@@ -19,6 +19,10 @@ public final class MusicLyrics {
     public static final int MAX_LINES = 4000;
     public static final int MAX_WORDS = 8000;
     public static final int MAX_AMBIGUOUS_TIMES = 256;
+    // Avoid LambdaMetafactory on the Android bootclasspath-only compile path.
+    private static final java.util.Comparator<Word> WORD_ORDER = new java.util.Comparator<Word>(){
+        @Override public int compare(Word a,Word b){return Long.compare(a.startMs(),b.startMs());}
+    };
     public static final long MAX_TIME_MS = 24L * 60 * 60 * 1000;
     public enum Status { PARSED, EMPTY, UNSUPPORTED }
 
@@ -118,21 +122,24 @@ public final class MusicLyrics {
             }
             Integer[] order=new Integer[times.size()];
             for(int i=0;i<order.length;i++)order[i]=i;
-            java.util.Arrays.sort(order,(a,b)->{int c=Long.compare(times.get(a)[0],times.get(b)[0]);return c!=0?c:Integer.compare(a,b);});
+            java.util.Arrays.sort(order,new java.util.Comparator<Integer>(){
+                @Override public int compare(Integer a,Integer b){int c=Long.compare(times.get(a)[0],times.get(b)[0]);return c!=0?c:Integer.compare(a,b);}
+            });
             for(Integer index:order)parsed.add(new Line(times.get(index)[0],bodies.get(index),null));
         }
         List<Word> sortedWords=new ArrayList<>(wordTimings);
         for(Word word:sortedWords)
             if(word==null || word.startMs()<0 || word.endMs()<word.startMs() || word.endMs()>MAX_TIME_MS)
                 throw new IllegalArgumentException("Invalid word timing");
-        sortedWords.sort((a,b)->Long.compare(a.startMs(),b.startMs())); // stable for ties
+        Collections.sort(sortedWords,WORD_ORDER); // stable for ties
         boolean overlap=false;
         long previousEnd=-1;
         for(Word word:sortedWords){
             if(word.startMs()<previousEnd)overlap=true;
             previousEnd=Math.max(previousEnd,word.endMs());
         }
-        Status status=parsed.isEmpty() && sortedWords.isEmpty()?Status.EMPTY:Status.PARSED;
+        Status status=parsed.isEmpty() && sortedWords.isEmpty()
+                ?(lrcText==null || lrcText.trim().isEmpty()?Status.EMPTY:Status.UNSUPPORTED):Status.PARSED;
         return new Lyrics(status,parsed,sortedWords,overlap,Collections.<Long>emptyList());
     }
 
@@ -168,15 +175,16 @@ public final class MusicLyrics {
         List<Word> words=new ArrayList<>();
         for(String raw:officialWordText.split("\n",-1)){
             String line=raw.endsWith("\r")?raw.substring(0,raw.length()-1):raw;
+            if(line.length()>MAX_LINE_CHARS)throw new IllegalArgumentException("Word timing line too long");
             if(line.trim().isEmpty())continue;
             String[] parts=line.split("\t",-1);
-            if(parts.length<3)throw new IllegalArgumentException("Malformed word timing");
+            if(parts.length!=3)throw new IllegalArgumentException("Malformed word timing");
             long start=Long.parseLong(parts[0].trim()),end=Long.parseLong(parts[1].trim());
             if(start<0 || end<start || end>MAX_TIME_MS)throw new IllegalArgumentException("Invalid word timing range");
             words.add(new Word(start,end,text(parts[2],MAX_LINE_CHARS)));
             if(words.size()>MAX_WORDS)throw new IllegalArgumentException("Too many word timings");
         }
-        words.sort((a,b)->Long.compare(a.startMs(),b.startMs())); // stable chronological projection
+        Collections.sort(words,WORD_ORDER); // stable chronological projection
         return Collections.unmodifiableList(words);
     }
 

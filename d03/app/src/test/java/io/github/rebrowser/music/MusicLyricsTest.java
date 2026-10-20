@@ -92,4 +92,9 @@ public final class MusicLyricsTest {
         assertEquals(-1,lyrics.activeWordAt(3000));
         assertEquals(1,lyrics.wordIndexAt(3000));
     }
+    @Test public void unsupportedAndMalformedWordTsvRemainExplicit(){
+        assertEquals(MusicLyrics.Status.UNSUPPORTED,MusicLyrics.parseLrc("[00:01.]bad").status());
+        assertThrows(IllegalArgumentException.class,()->MusicLyrics.parseWords("0\t10\tfirst\textra"));
+        assertThrows(IllegalArgumentException.class,()->MusicLyrics.parseWords("0\t10\t"+"x".repeat(4096)));
+    }
 }
