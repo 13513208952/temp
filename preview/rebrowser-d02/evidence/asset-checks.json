@@ -1,0 +1,13 @@
+{
+  "revision": "D02",
+  "assetStaticChecksPassed": true,
+  "readerCspFixedTrue": true,
+  "readerNoInlineScriptOrHandler": true,
+  "readerNoRemoteUrl": true,
+  "readerCssNoImportOrUrl": true,
+  "readerJsNoHtmlInjectionOrNetworkOrMessageChannel": true,
+  "musicCssNoImportOrUrlOrAuthHiding": true,
+  "actualWebViewOrGeckoRendered": false,
+  "actualOfficialSiteCssValidation": false,
+  "note": "Static text assertions only (comments excluded); no browser rendering, CSP enforcement or official page regression was executed."
+}

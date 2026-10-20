@@ -1,0 +1,44 @@
+package io.github.rebrowser.music;
+
+import static org.junit.Assert.*;
+import org.junit.Test;
+
+/** Pure bounded parsing; no playback, page script or network is involved. */
+public final class MusicLyricsTest {
+    @Test public void lrcLinesAreSortedAndMetadataIgnored(){
+        MusicLyrics.Lyrics lyrics=MusicLyrics.parseLrc("[ar:artist]\n[00:01.50]second\n[00:00.10]first\nplain text");
+        assertEquals(MusicLyrics.Status.PARSED,lyrics.status());
+        assertEquals(2,lyrics.lines().size());
+        assertEquals("first",lyrics.lines().get(0).text());
+        assertEquals(100,lyrics.lines().get(0).timeMs());
+        assertEquals("second",lyrics.lines().get(1).text());
+        assertEquals(1500,lyrics.lines().get(1).timeMs());
+    }
+    @Test public void multipleStampsShareBodyAndFractionUsesTwoDigits(){
+        MusicLyrics.Lyrics lyrics=MusicLyrics.parseLrc("[00:01.05][01:02.7]same");
+        assertEquals(2,lyrics.lines().size());
+        assertEquals(1050,lyrics.lines().get(0).timeMs());
+        assertEquals(62700,lyrics.lines().get(1).timeMs());
+    }
+    @Test public void invalidStampsAreIgnoredRatherThanGuessed(){
+        MusicLyrics.Lyrics lyrics=MusicLyrics.parseLrc("[00:99.00]bad\n[abc]bad\n[00:00.00]ok");
+        assertEquals(1,lyrics.lines().size());
+        assertEquals("ok",lyrics.lines().get(0).text());
+        assertEquals(MusicLyrics.Status.EMPTY,MusicLyrics.parseLrc(null).status());
+    }
+    @Test public void wordTimingsAreBoundedAndOverlapReported(){
+        java.util.List<MusicLyrics.Word> words=MusicLyrics.parseWords("0\t500\ta\n400\t900\tb");
+        assertEquals(2,words.size());
+        assertTrue(MusicLyrics.parse("",words).overlappingWords());
+        assertThrows(IllegalArgumentException.class,()->MusicLyrics.parseWords("500\t400\tb"));
+        assertThrows(IllegalArgumentException.class,()->MusicLyrics.parseWords("0\t10"));
+    }
+    @Test public void positionMappingNeverExtrapolates(){
+        MusicLyrics.Lyrics lyrics=MusicLyrics.parse("[00:00.00]a\n[00:02.00]b",MusicLyrics.parseWords("0\t1000\tx\n2000\t3000\ty"));
+        assertEquals(0,lyrics.lineIndexAt(0));
+        assertEquals(0,lyrics.lineIndexAt(1999));
+        assertEquals(1,lyrics.lineIndexAt(2000));
+        assertEquals(0,lyrics.wordIndexAt(1500));
+        assertThrows(IllegalArgumentException.class,()->lyrics.lineIndexAt(-1));
+    }
+}

@@ -1,0 +1,402 @@
+{
+  "revision": "D02",
+  "delivery": "all42targets-present",
+  "runtimeFiles": 42,
+  "javaFiles": 36,
+  "runtimeAssets": 6,
+  "wholeScopeTasks": 14,
+  "restrictedSliceTasks": 28,
+  "testClasses": 36,
+  "testMethods": 120,
+  "testsPassed": 120,
+  "testsFailed": 0,
+  "compiledAgainst": "android-37.2 android.jar + pinned GeckoView 158 classes.jar (javac --release 17, -proc:none)",
+  "compiledMainAndContextSources": 45,
+  "actualAndroidRuntimeExecuted": false,
+  "actualGeckoDelegateCallbackExecuted": false,
+  "actualWebRenderOrCspEnforcementExecuted": false,
+  "actualOfficialSiteCssValidated": false,
+  "realAccountsOrUserDataUsed": false,
+  "gitCommitOrPushByWorker": false,
+  "scopeNote": "Slice tasks implement the allowed low-side-effect part only; high-risk/remainder stays with the integrating owner. No empty stubs, no fabricated authorization, persistence or completion.",
+  "files": [
+    {
+      "id": "L07",
+      "path": "app/src/main/java/io/github/rebrowser/ui/NewTabView.java",
+      "sha256": "a1438aeee10083ed53ea2691a2c689ad0ee86199afcf4ffb20337d38800bdaa8",
+      "bytes": 8981,
+      "scope": "whole",
+      "testPath": "app/src/test/java/io/github/rebrowser/ui/NewTabViewTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L08",
+      "path": "app/src/main/java/io/github/rebrowser/ui/HistoryActivity.java",
+      "sha256": "2f023cf4a702bd96a7e720dd0305bebf74ad3b827c424b599d8df5142e306f04",
+      "bytes": 5433,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/ui/HistoryActivityTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L09",
+      "path": "app/src/main/java/io/github/rebrowser/ui/DownloadsActivity.java",
+      "sha256": "e9112ce6d2ab65540b9af15c1c4af533ac799243a5d9c379034f9abb0de4ae5b",
+      "bytes": 5468,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/ui/DownloadsActivityTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L10",
+      "path": "app/src/main/java/io/github/rebrowser/ui/SettingsActivity.java",
+      "sha256": "c0d4b19f59696e9d019a9a52d7cf20584e82ac944311ea156b58106633fe6c78",
+      "bytes": 5546,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/ui/SettingsActivityTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L11",
+      "path": "app/src/main/java/io/github/rebrowser/ui/ApplicationsActivity.java",
+      "sha256": "880f42752aa9965b89ae62bc8850ec01b35341f85b205d0ac17e586aca79cfc3",
+      "bytes": 6277,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/ui/ApplicationsActivityTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L12",
+      "path": "app/src/main/java/io/github/rebrowser/ui/SubapplicationSettingsActivity.java",
+      "sha256": "70567b57d702f0108ad86c8912a4313512249b5786b318dee1114d7678102b5d",
+      "bytes": 7120,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/ui/SubapplicationSettingsActivityTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L13",
+      "path": "app/src/main/java/io/github/rebrowser/ui/SitePermissionsActivity.java",
+      "sha256": "c5bee46386bc2d3eff04378dc40677c32d74c67d4d4dbdeba4b0952ef148ffbb",
+      "bytes": 8376,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/ui/SitePermissionsActivityTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L14",
+      "path": "app/src/main/java/io/github/rebrowser/outlook/OutlookActivity.java",
+      "sha256": "92767dc1b2547640d0a3b57e40b222d373a8554009aaa6ef600b76a5e907519d",
+      "bytes": 5322,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/outlook/OutlookActivityTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L15",
+      "path": "app/src/main/java/io/github/rebrowser/outlook/OfflineMailActivity.java",
+      "sha256": "2604978befec496cd7c6f339c749d51a8c32c2539c51b314b448d6cbb7f9a066",
+      "bytes": 10188,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/outlook/OfflineMailActivityTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L16",
+      "path": "app/src/main/java/io/github/rebrowser/music/MusicActivity.java",
+      "sha256": "9619b18d701ba0b96e49021fb8eb74778c5cdee6c4a1f98b07c0e0d496bf479d",
+      "bytes": 7724,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/music/MusicActivityTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L17",
+      "path": "app/src/main/java/io/github/rebrowser/music/MusicNotification.java",
+      "sha256": "2e3c8c8b1f69c4cc4d2a3a1ea94b2b027a98c3f4aa650832cec569f1049c39b1",
+      "bytes": 5646,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/music/MusicNotificationTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L18",
+      "path": "app/src/main/java/io/github/rebrowser/music/MusicArtwork.java",
+      "sha256": "b7e52f1d0344a755973713cf1a29d985508358eae14ccc05f97c6abb0d0de26d",
+      "bytes": 4263,
+      "scope": "whole",
+      "testPath": "app/src/test/java/io/github/rebrowser/music/MusicArtworkTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L19",
+      "path": "app/src/main/java/io/github/rebrowser/music/MusicLyrics.java",
+      "sha256": "12c221e816c063d5584e37861993c42e745f887553cd6e2bb024b6739d4429ae",
+      "bytes": 8062,
+      "scope": "whole",
+      "testPath": "app/src/test/java/io/github/rebrowser/music/MusicLyricsTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L20",
+      "path": "app/src/main/java/io/github/rebrowser/music/MusicQueue.java",
+      "sha256": "8f593144ee3d75f6f01f53cc0092069533b801c3f2613ac66a263249a5e77538",
+      "bytes": 5046,
+      "scope": "whole",
+      "testPath": "app/src/test/java/io/github/rebrowser/music/MusicQueueTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L21",
+      "path": "app/src/main/java/io/github/rebrowser/music/MusicState.java",
+      "sha256": "188c977b59c5e674bc785432aab6920b3ba3cd46682cfab448c541b3cb2a324c",
+      "bytes": 4716,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/music/MusicStateTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L22",
+      "path": "app/src/main/java/io/github/rebrowser/lyrics/LyricOverlayController.java",
+      "sha256": "4f064239c0e9b08c7a1c7f3a3f0bda3f9eb568ce7353ba567bae2ec9e13c0190",
+      "bytes": 4469,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/lyrics/LyricOverlayControllerTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L23",
+      "path": "app/src/main/java/io/github/rebrowser/lyrics/LyricOverlayWindow.java",
+      "sha256": "f9e68b6a1951c5ce48438d665b64710fe02d6d8b0c8522f51498d8c94a3bbd6c",
+      "bytes": 8165,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/lyrics/LyricOverlayWindowTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L24",
+      "path": "app/src/main/java/io/github/rebrowser/lyrics/LyricPositionStore.java",
+      "sha256": "01911735ed3769624e67931c4211f9ba37f2cf022c4e29feae912b627e35d4ca",
+      "bytes": 4514,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/lyrics/LyricPositionStoreTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L25",
+      "path": "app/src/main/java/io/github/rebrowser/lyrics/OverlayPermissionFlow.java",
+      "sha256": "90ccef036cc6f22718fc9fb7752f1879cd2c9db0390c20cae5e2babfd787008f",
+      "bytes": 3076,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/lyrics/OverlayPermissionFlowTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L26",
+      "path": "app/src/main/java/io/github/rebrowser/system/DefaultBrowserFlow.java",
+      "sha256": "3d7f49013aba18b4e34efedabfe780ffa7f6e57285093bee8fd74cb46169e404",
+      "bytes": 2887,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/system/DefaultBrowserFlowTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L27",
+      "path": "app/src/main/java/io/github/rebrowser/system/ForegroundPolicy.java",
+      "sha256": "1e8346341ed7a885033899299c890f12d09d65cb29942fb2139dd007347da248",
+      "bytes": 3557,
+      "scope": "whole",
+      "testPath": "app/src/test/java/io/github/rebrowser/system/ForegroundPolicyTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L28",
+      "path": "app/src/main/java/io/github/rebrowser/system/MemoryPressurePolicy.java",
+      "sha256": "3ac3c425cb9bcb562eeb9eb368b1ecb34fc54e7e81375d95616532abd9f39865",
+      "bytes": 2940,
+      "scope": "whole",
+      "testPath": "app/src/test/java/io/github/rebrowser/system/MemoryPressurePolicyTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L29",
+      "path": "app/src/main/java/io/github/rebrowser/system/ApkHandoffActivity.java",
+      "sha256": "ccc1c2f5e4be46ef57ed51833774a22c5da64bbcf5e394c735e87ac841e05654",
+      "bytes": 6531,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/system/ApkHandoffActivityTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L30",
+      "path": "app/src/main/java/io/github/rebrowser/outlook/OfficialMailEntry.java",
+      "sha256": "a3f14e0ce0b7cda58d91221475530b0c3bc43a948eed9a504f60453221e31be1",
+      "bytes": 2883,
+      "scope": "whole",
+      "testPath": "app/src/test/java/io/github/rebrowser/outlook/OfficialMailEntryTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L31",
+      "path": "app/src/main/java/io/github/rebrowser/outlook/MailRetentionPolicy.java",
+      "sha256": "ffa219d5e0e9794980ad18e113519683a8caf46c0487385836e653615e5c7543",
+      "bytes": 2650,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/outlook/MailRetentionPolicyTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L32",
+      "path": "app/src/main/java/io/github/rebrowser/core/DomainResult.java",
+      "sha256": "8b23d719026c39619ae642c9728d3d80709ad550f6463b5195c3bfec8fcb63b9",
+      "bytes": 2326,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/core/DomainResultTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L33",
+      "path": "app/src/main/java/io/github/rebrowser/crypto/KeyPurpose.java",
+      "sha256": "92e7179917a17f93cd9a49fb35352d93d595f6477b23a18816a47bc2e4073094",
+      "bytes": 1668,
+      "scope": "whole",
+      "testPath": "app/src/test/java/io/github/rebrowser/crypto/KeyPurposeTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L34",
+      "path": "app/src/main/java/io/github/rebrowser/bridge/BridgeMessages.java",
+      "sha256": "b3130e6decc8d111d25744d88061e849caeda68e3d83011fb786a5c011d9816d",
+      "bytes": 28970,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/bridge/BridgeMessagesTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L35",
+      "path": "app/src/main/java/io/github/rebrowser/bridge/BridgeBudget.java",
+      "sha256": "e5b413da7d90fe441d69fea9b7a80dfd44461bc6412a464a963895b8181f35fc",
+      "bytes": 4421,
+      "scope": "whole",
+      "testPath": "app/src/test/java/io/github/rebrowser/bridge/BridgeBudgetTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L36",
+      "path": "app/src/main/java/io/github/rebrowser/outlook/MailObjectFormat.java",
+      "sha256": "c8a1e215637261fec3357a0d22b68bca777e10f2bdc3e78ebc909feaf710b9d9",
+      "bytes": 7313,
+      "scope": "whole",
+      "testPath": "app/src/test/java/io/github/rebrowser/outlook/MailObjectFormatTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L37",
+      "path": "app/src/main/java/io/github/rebrowser/outlook/MailSearch.java",
+      "sha256": "eee1795ba2f183047246a6d7f6686bfa020caafcbc7b371044aed7f94007fa6e",
+      "bytes": 5629,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/outlook/MailSearchTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L38",
+      "path": "app/src/main/java/io/github/rebrowser/settings/PersonalizationPolicy.java",
+      "sha256": "24f004bad032a1f30cfdaab3ea3a54f936abbde16664303d2c93cc64440f6e03",
+      "bytes": 4277,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/settings/PersonalizationPolicyTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L39",
+      "path": "app/src/main/java/io/github/rebrowser/music/MusicPreferences.java",
+      "sha256": "c4bbffbcead9e01bd9934c3f4755ef54e4d58a3f8cdfdff75e4d99a735f931de",
+      "bytes": 5978,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/music/MusicPreferencesTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L40",
+      "path": "app/src/main/java/io/github/rebrowser/music/MusicMediaSession.java",
+      "sha256": "295ba0f71c25f2b44248759e9745e0107185ea5af566d0981447108757fedbf2",
+      "bytes": 5398,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/music/MusicMediaSessionTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L41",
+      "path": "app/src/main/java/io/github/rebrowser/engine/GeckoMediaBridge.java",
+      "sha256": "098c37aeeb91a28b9bade3ad023e2fa07199aca98fd8d7eb2c017304a77f78e5",
+      "bytes": 5540,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/engine/GeckoMediaBridgeTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L42",
+      "path": "app/src/main/java/io/github/rebrowser/engine/GeckoHistoryDelegate.java",
+      "sha256": "73a2f853ef5cebb756cf4480dc6440a95cc06596ecf2a5b322b4a6c908d126a5",
+      "bytes": 3866,
+      "scope": "slice",
+      "testPath": "app/src/test/java/io/github/rebrowser/engine/GeckoHistoryDelegateTest.java",
+      "testExists": true
+    },
+    {
+      "id": "L43",
+      "path": "app/src/main/assets/offline-mail/reader.html",
+      "sha256": "cf3c785d4ab0024a69055bcb6ea4318afcf8f81553a95e90cfd8a0cc77c41464",
+      "bytes": 1161,
+      "scope": "slice",
+      "testPath": null,
+      "testExists": false
+    },
+    {
+      "id": "L44",
+      "path": "app/src/main/assets/offline-mail/reader.css",
+      "sha256": "5e7da3d0a019de239ca09cc47b98cbebb9c02095768381bf1749c95146668fe8",
+      "bytes": 2514,
+      "scope": "whole",
+      "testPath": null,
+      "testExists": false
+    },
+    {
+      "id": "L45",
+      "path": "app/src/main/assets/offline-mail/reader.js",
+      "sha256": "4c817881898e87681671ebc5d25a5e63ea0098449fc04e2371ee804c3a692414",
+      "bytes": 4498,
+      "scope": "slice",
+      "testPath": null,
+      "testExists": false
+    },
+    {
+      "id": "L46",
+      "path": "app/src/main/assets/bridge/styles/music-phone.css",
+      "sha256": "2f25221a3f931d8492f4802d89d591b5ace1e0a32de970b1442e4f4f0e1f10a2",
+      "bytes": 9669,
+      "scope": "whole",
+      "testPath": null,
+      "testExists": false
+    },
+    {
+      "id": "L47",
+      "path": "app/src/main/assets/bridge/styles/music-window.css",
+      "sha256": "3ef8edee0746651b273aba7368ab47ea95300735609696a60188d1336a6dc1b3",
+      "bytes": 4951,
+      "scope": "whole",
+      "testPath": null,
+      "testExists": false
+    },
+    {
+      "id": "L48",
+      "path": "app/src/main/assets/bridge/styles/music-desktop.css",
+      "sha256": "cc7cd866f25cd1aa5cabfb63c5455e210204fa01b2e0a23423c2d7b83dfcb1b1",
+      "bytes": 5247,
+      "scope": "whole",
+      "testPath": null,
+      "testExists": false
+    }
+  ]
+}
