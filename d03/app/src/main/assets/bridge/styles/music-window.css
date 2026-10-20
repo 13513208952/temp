@@ -1,0 +1,77 @@
+/* Non-full tablet / small-window adaptation, derived ONLY from the approved phone reference
+ * selectors (netease_home_card.css + netease_expanded_portrait.css). There is no separate
+ * owner-approved "window" reference, so this file deliberately:
+ *   - keeps the official player, login overlay and comment layers intact;
+ *   - never forces a desktop/mobile UA, device model, global zoom or orientation;
+ *   - adds no @import/url()/remote font and no JS/auth/playback rule;
+ *   - hides nothing that carries authorization, error, QR-expiry or account state.
+ * The mode class is applied by the native window policy, not by page script.
+ */
+.rb-music-window .VinylPageLayoutContainer_vwagppq {
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ grid-template-rows:minmax(88px,max-content) clamp(120px,26vh,240px) minmax(0,1fr)!important;
+ align-items:start!important;gap:10px!important;height:100%!important;min-width:0!important;
+ padding:12px 24px 148px!important;box-sizing:border-box!important;
+}
+.rb-music-window .VinylPageLayoutContainer_vwagppq>.side,
+.rb-music-window .VinylPageLayoutContainer_vwagppq>.center { display:none!important; }
+.rb-music-window .VinylPageLayoutContainer_vwagppq>.display { display:contents!important; }
+.rb-music-window .VinylPageLayoutContainer_vwagppq>.vinyl {
+ grid-column:1!important;grid-row:2!important;justify-self:center!important;
+ width:min(48vw,24vh,240px)!important;height:100%!important;min-width:0!important;
+}
+.rb-music-window .VinylPageLayoutContainer_vwagppq .VinylCoverContainer_v1gm9f7r {
+ inset:0!important;width:100%!important;height:100%!important;
+}
+.rb-music-window .VinylPageLayoutContainer_vwagppq .TrackTitleContainer_t1s72en4 {
+ grid-column:1!important;grid-row:1!important;min-width:0!important;align-self:start!important;gap:4px!important;
+}
+.rb-music-window .TrackTitleContainer_t1s72en4 .one-line,
+.rb-music-window .TrackTitleContainer_t1s72en4 .two-line {
+ margin-left:52px!important;min-height:40px!important;align-items:center!important;
+}
+.rb-music-window .TrackTitleContainer_t1s72en4 .title { font-size:20px!important;line-height:26px!important; }
+.rb-music-window .TrackTitleContainer_t1s72en4 .info-line {
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:2px 12px!important;min-width:0!important;
+}
+.rb-music-window .TrackTitleContainer_t1s72en4 .info {
+ min-width:0!important;width:auto!important;flex:1 1 0!important;
+ overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+.rb-music-window .VinylPageLayoutContainer_vwagppq .TrackDisplayContainer_t11eiop9 {
+ grid-column:1!important;grid-row:3!important;height:100%!important;min-height:0!important;
+ min-width:0!important;overflow:hidden!important;
+}
+.rb-music-window .TrackDisplayContainer_t11eiop9>.tab-group {
+ flex:none!important;max-width:100%!important;white-space:nowrap!important;overflow-x:auto!important;
+}
+.rb-music-window .TrackDisplayContainer_t11eiop9>.area { min-height:0!important;min-width:0!important; }
+.rb-music-window .GridCarouselWrapper_gcvcmmp.shorten .rail-wrapper { align-items:stretch!important; }
+.rb-music-window .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y {
+ height:auto!important;min-height:0!important;align-self:stretch!important;
+ padding:10px!important;box-sizing:border-box!important;
+}
+.rb-music-window .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y .card-rail>.cards {
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:12px!important;width:100%!important;height:auto!important;min-width:0!important;
+}
+.rb-music-window .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y .cards>.RecentListenCardContainer_r1b6smzd {
+ min-width:0!important;height:0!important;padding-top:100%!important;
+}
+.rb-music-window .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y .cards>.RecentListenCardContainer_r1b6smzd>img.bg {
+ width:100%!important;height:100%!important;max-height:none!important;object-fit:cover!important;
+}
+.rb-music-window .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y .cards>.RecentListenCardContainer_r1b6smzd>img.icon {
+ width:60%!important;height:auto!important;max-height:none!important;
+}
+/* Small windows keep single-column content but never shrink below a readable touch target. */
+@media (max-width: 599px) {
+ .rb-music-window .VinylPageLayoutContainer_vwagppq { padding:8px 12px 140px!important;gap:8px!important; }
+ .rb-music-window .VinylPageLayoutContainer_vwagppq>.vinyl { width:min(64vw,20vh,200px)!important; }
+ .rb-music-window .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y .card-rail>.cards {
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;
+ }
+}
+/* The desktop wheel hint is not an Android touch control. */
+.rb-music-window .ClassicPageContainer_c1h09pwc .scroll-tip { display:none!important; }

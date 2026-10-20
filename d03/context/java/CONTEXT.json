@@ -1,0 +1,36 @@
+{
+  "meaning": "Read-only verbatim copies of pre-existing production sources, supplied ONLY so the 42 new targets compile and can be reviewed. Not authored or modified in this round.",
+  "files": [
+    {
+      "path": "app/src/main/java/io/github/rebrowser/ui/BrowserToolbar.java",
+      "sha256": "df202e6bc94788fb95b948a22ac5e7d39f7b6fd293b9f195bd4d814c3fc3626b",
+      "bytes": 7020
+    },
+    {
+      "path": "app/src/main/java/io/github/rebrowser/bootstrap/ComponentGate.java",
+      "sha256": "fa92aba18dbd8c6c51ef098f09bc6f39534bf5c40037e96349bcee7b345dfe47",
+      "bytes": 6846
+    },
+    {
+      "path": "app/src/main/java/io/github/rebrowser/bootstrap/ProcessRole.java",
+      "sha256": "25e3ae10defb9ad076aea789ecbe07cd6e9f5fbf29de147a9701e365458fb562",
+      "bytes": 2671
+    },
+    {
+      "path": "app/src/main/java/io/github/rebrowser/browser/SearchEngines.java",
+      "sha256": "dba5dab12e6829a4cc9db92957dc5c4ad397b5b11a5be758b6a6b920e07eda65",
+      "bytes": 8377
+    },
+    {
+      "path": "app/src/main/java/io/github/rebrowser/core/TaskSnapshot.java",
+      "sha256": "60d5b1d7235064752f4ec356481fc0d54a14fef754b373871c82664446db9119",
+      "bytes": 4720
+    },
+    {
+      "path": "app/src/main/java/io/github/rebrowser/subapps/SubapplicationRegistry.java",
+      "sha256": "d0b98b7e859c04b744c9d8b212eae2ec5c6c07d618cf5b0bae5e6d5fbe0a7363",
+      "bytes": 3911
+    }
+  ],
+  "note": " 2026-10-20 D03: HistoryAdapter/DownloadsAdapter/SettingsSections were extended by this round and therefore live in app/ (not context/)."
+}

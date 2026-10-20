@@ -1,0 +1,80 @@
+/* Full-tablet landscape / EXPLICIT desktop-QR mode styling, derived from approved phone
+ * selectors only. No independent owner-approved desktop reference exists, therefore:
+ *   - the mode class is decided by the native/connector state, never by this CSS;
+ *   - no desktop UA, viewport rewrite, global zoom or login-flow substitution happens here;
+ *   - QR expiry / authentication errors / account state remain visible and untouched;
+ *   - no @import/url()/remote font and no JS/playback/auth rule.
+ */
+.rb-music-desktop .VinylPageLayoutContainer_vwagppq {
+ display:grid!important;
+ grid-template-columns:minmax(0,min(46vw,520px)) minmax(0,1fr)!important;
+ grid-template-rows:max-content minmax(0,1fr)!important;
+ align-items:start!important;gap:24px!important;height:100%!important;min-width:0!important;
+ padding:24px 32px 156px!important;box-sizing:border-box!important;
+}
+.rb-music-desktop .VinylPageLayoutContainer_vwagppq>.side,
+.rb-music-desktop .VinylPageLayoutContainer_vwagppq>.center { display:none!important; }
+.rb-music-desktop .VinylPageLayoutContainer_vwagppq>.display { display:contents!important; }
+.rb-music-desktop .VinylPageLayoutContainer_vwagppq>.vinyl {
+ grid-column:1!important;grid-row:1 / span 2!important;justify-self:center!important;align-self:center!important;
+ width:min(40vw,44vh,420px)!important;height:auto!important;aspect-ratio:1/1!important;min-width:0!important;
+}
+.rb-music-desktop .VinylPageLayoutContainer_vwagppq .VinylCoverContainer_v1gm9f7r {
+ inset:0!important;width:100%!important;height:100%!important;
+}
+.rb-music-desktop .VinylPageLayoutContainer_vwagppq .TrackTitleContainer_t1s72en4 {
+ grid-column:2!important;grid-row:1!important;min-width:0!important;align-self:start!important;gap:4px!important;
+}
+.rb-music-desktop .TrackTitleContainer_t1s72en4 .one-line,
+.rb-music-desktop .TrackTitleContainer_t1s72en4 .two-line {
+ margin-left:52px!important;min-height:40px!important;align-items:center!important;
+}
+.rb-music-desktop .TrackTitleContainer_t1s72en4 .title { font-size:22px!important;line-height:28px!important; }
+.rb-music-desktop .TrackTitleContainer_t1s72en4 .info-line {
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:2px 12px!important;min-width:0!important;
+}
+.rb-music-desktop .TrackTitleContainer_t1s72en4 .info {
+ min-width:0!important;width:auto!important;flex:1 1 0!important;
+ overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+.rb-music-desktop .VinylPageLayoutContainer_vwagppq .TrackDisplayContainer_t11eiop9 {
+ grid-column:2!important;grid-row:2!important;height:100%!important;min-height:0!important;
+ min-width:0!important;overflow:hidden!important;
+}
+.rb-music-desktop .TrackDisplayContainer_t11eiop9>.tab-group {
+ flex:none!important;max-width:100%!important;white-space:nowrap!important;overflow-x:auto!important;
+}
+.rb-music-desktop .TrackDisplayContainer_t11eiop9>.area { min-height:0!important;min-width:0!important; }
+.rb-music-desktop .GridCarouselWrapper_gcvcmmp.shorten .rail-wrapper { align-items:stretch!important; }
+.rb-music-desktop .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y {
+ height:auto!important;min-height:0!important;align-self:stretch!important;padding:12px!important;box-sizing:border-box!important;
+}
+.rb-music-desktop .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y .card-rail>.cards {
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important;width:100%!important;height:auto!important;min-width:0!important;
+}
+.rb-music-desktop .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y .cards>.RecentListenCardContainer_r1b6smzd {
+ min-width:0!important;height:0!important;padding-top:100%!important;
+}
+.rb-music-desktop .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y .cards>.RecentListenCardContainer_r1b6smzd>img.bg {
+ width:100%!important;height:100%!important;max-height:none!important;object-fit:cover!important;
+}
+.rb-music-desktop .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y .cards>.RecentListenCardContainer_r1b6smzd>img.icon {
+ width:60%!important;height:auto!important;max-height:none!important;
+}
+.rb-music-desktop .ClassicPageContainer_c1h09pwc .scroll-tip { display:none!important; }
+/* Narrow landscape tablets fall back to the single-column window composition. */
+@media (max-width: 899px) {
+ .rb-music-desktop .VinylPageLayoutContainer_vwagppq {
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:max-content auto minmax(0,1fr)!important;
+  gap:12px!important;padding:16px 20px 148px!important;
+ }
+ .rb-music-desktop .VinylPageLayoutContainer_vwagppq>.vinyl {
+  grid-column:1!important;grid-row:2!important;width:min(48vw,22vh,240px)!important;
+ }
+ .rb-music-desktop .VinylPageLayoutContainer_vwagppq .TrackTitleContainer_t1s72en4 { grid-column:1!important;grid-row:1!important; }
+ .rb-music-desktop .VinylPageLayoutContainer_vwagppq .TrackDisplayContainer_t11eiop9 { grid-column:1!important;grid-row:3!important; }
+ .rb-music-desktop .GridCarouselWrapper_gcvcmmp.shorten .RecentListenContainer_r1w1uh6y .card-rail>.cards {
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;
+ }
+}
