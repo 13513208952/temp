@@ -13,3 +13,10 @@
 - 只完成 TASKS.md 指定的任务；不做自由扩展。
 
 交付时提供代码、单元测试和简短的 `DELIVERY.md`，写明实现范围、确实执行过的测试及未解决的问题。**提交到这里不意味着被任何其他软件采用。**
+
+## Folder roles
+
+- [`preview/`](preview/README.md): landing area for independent coding-agent submissions; currently a placeholder only.
+- [`final/`](final/README.md): reviewed, optimized standalone candidate code and local regression tests.
+
+These folders are deliberately separate. Do not automatically promote `preview` submissions to `final`, and do not run GitHub Actions or other remote CI.
