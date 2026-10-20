@@ -34,4 +34,27 @@ public final class BookmarkTreeTest {
         assertThrows(IllegalArgumentException.class,()->tree.search(new String(new char[65]).replace('\0','x')));
         assertEquals(0,tree.search("   ").size());
     }
+
+    @Test public void bookmarkCannotParentNodesAndVisibleFolderBudgetIsExact(){
+        Object notFolder=new Object(),child=new Object();
+        assertThrows(IllegalArgumentException.class,()->new BookmarkView.Tree(java.util.Arrays.asList(
+                bookmark(notFolder,null,"普通书签"),bookmark(child,notFolder,"非法子节点")),1));
+        Object folder=new Object();
+        java.util.List<BookmarkView.Node> accepted=new java.util.ArrayList<>();
+        accepted.add(folder(folder,null,"根目录"));
+        for(int i=0;i<BookmarkView.MAX_ROWS;i++)accepted.add(bookmark(new Object(),folder,"记录"+i));
+        BookmarkView.Tree good=new BookmarkView.Tree(accepted,1);
+        assertEquals(BookmarkView.MAX_ROWS,good.rowsIn(folder).size());
+        accepted.add(bookmark(new Object(),folder,"超出容量"));
+        assertThrows(IllegalArgumentException.class,()->new BookmarkView.Tree(accepted,1));
+    }
+    @Test public void aggregateSearchDoesNotOverrunSinglePageBudget(){
+        Object folderA=new Object(),folderB=new Object();
+        java.util.List<BookmarkView.Node> nodes=new java.util.ArrayList<>();
+        nodes.add(folder(folderA,null,"A"));nodes.add(folder(folderB,null,"B"));
+        for(int i=0;i<60;i++)nodes.add(bookmark(new Object(),folderA,"matchA"+i));
+        for(int i=0;i<60;i++)nodes.add(bookmark(new Object(),folderB,"matchB"+i));
+        BookmarkView.Tree tree=new BookmarkView.Tree(nodes,1);
+        assertThrows(IllegalArgumentException.class,()->tree.search("match"));
+    }
 }
