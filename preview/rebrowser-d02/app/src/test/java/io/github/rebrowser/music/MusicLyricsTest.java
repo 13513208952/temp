@@ -20,6 +20,27 @@ public final class MusicLyricsTest {
         assertEquals(1050,lyrics.lines().get(0).timeMs());
         assertEquals(62700,lyrics.lines().get(1).timeMs());
     }
+    @Test public void threeFractionalDigitsPreserveRealMilliseconds(){
+        MusicLyrics.Lyrics lyrics=MusicLyrics.parseLrc("[00:01.005]five ms\n[00:01.05]fifty ms\n[00:01.5]five hundred ms");
+        assertEquals(1005,lyrics.lines().get(0).timeMs());
+        assertEquals(1050,lyrics.lines().get(1).timeMs());
+        assertEquals(1500,lyrics.lines().get(2).timeMs());
+    }
+    @Test public void unsortedWordTimingsAreStablySortedBeforePositionMapping(){
+        java.util.List<MusicLyrics.Word> words=MusicLyrics.parseWords("2000\t2400\tsecond\n1000\t1400\tfirst\n1000\t1500\ttied");
+        assertEquals("first",words.get(0).text());
+        assertEquals("tied",words.get(1).text());
+        MusicLyrics.Lyrics lyrics=MusicLyrics.parse("",java.util.Arrays.asList(
+                new MusicLyrics.Word(2000,2400,"second"),
+                new MusicLyrics.Word(1000,1400,"first"),
+                new MusicLyrics.Word(1000,1500,"tied")));
+        assertEquals("first",lyrics.words().get(0).text());
+        assertEquals("tied",lyrics.words().get(1).text());
+        assertEquals(1,lyrics.wordIndexAt(1500));
+        assertEquals(2,lyrics.wordIndexAt(2300));
+        assertTrue(lyrics.overlappingWords());
+        assertThrows(IllegalArgumentException.class,()->MusicLyrics.parse("",java.util.Arrays.asList((MusicLyrics.Word)null)));
+    }
     @Test public void invalidStampsAreIgnoredRatherThanGuessed(){
         MusicLyrics.Lyrics lyrics=MusicLyrics.parseLrc("[00:99.00]bad\n[abc]bad\n[00:00.00]ok");
         assertEquals(1,lyrics.lines().size());

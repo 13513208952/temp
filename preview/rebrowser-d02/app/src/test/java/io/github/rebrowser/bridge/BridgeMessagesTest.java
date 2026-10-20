@@ -56,6 +56,15 @@ public final class BridgeMessagesTest {
         assertThrows(IllegalArgumentException.class,()->BridgeMessages.parse(malformed));
         assertEquals("a",BridgeMessages.parse(hello("\\u0061")).hello().documentInstanceHint());
     }
+    @Test public void numericGrammarRejectsUnicodeDigitsInEveryNumberPosition(){
+        String start="{\"protocol\":\"rebrowser.connector/1\",\"kind\":\"EVENT\",\"binding\":"+binding()+",\"eventSequence\":";
+        String end=",\"eventType\":\"t\",\"resourceRef\":\"r\",\"payload\":{}}";
+        assertThrows(IllegalArgumentException.class,()->BridgeMessages.parse(start+"\u0661"+end));
+        assertThrows(IllegalArgumentException.class,()->BridgeMessages.parse(start+"1\u0661"+end));
+        assertThrows(IllegalArgumentException.class,()->BridgeMessages.parse(start+"1.\u0661"+end));
+        assertThrows(IllegalArgumentException.class,()->BridgeMessages.parse(start+"1e\u0661"+end));
+        assertEquals(1,BridgeMessages.parse(start+"1"+end).event().eventSequence());
+    }
     @Test public void oversizeDepthAndArrayBoundsAreEnforced(){
         StringBuilder deep=new StringBuilder();
         for(int i=0;i<20;i++)deep.append('[');

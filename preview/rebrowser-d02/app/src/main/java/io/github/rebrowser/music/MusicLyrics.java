@@ -88,14 +88,20 @@ public final class MusicLyrics {
             java.util.Arrays.sort(order,(a,b)->{int c=Long.compare(times.get(a)[0],times.get(b)[0]);return c!=0?c:Integer.compare(a,b);});
             for(Integer index:order)parsed.add(new Line(times.get(index)[0],bodies.get(index),null));
         }
+        // Stable chronological order is required by wordIndexAt and overlap detection.
+        List<Word> sortedWords=new ArrayList<>(wordTimings);
+        for(Word word:sortedWords)
+            if(word==null || word.startMs()<0 || word.endMs()<word.startMs() || word.endMs()>MAX_TIME_MS)
+                throw new IllegalArgumentException("Invalid word timing");
+        sortedWords.sort((a,b)->Long.compare(a.startMs(),b.startMs())); // stable for ties
         boolean overlap=false;
         long previousEnd=-1;
-        for(Word word:wordTimings){
+        for(Word word:sortedWords){
             if(word.startMs()<previousEnd)overlap=true;
             previousEnd=Math.max(previousEnd,word.endMs());
         }
-        Status status=parsed.isEmpty() && wordTimings.isEmpty()?Status.EMPTY:Status.PARSED;
-        return new Lyrics(status,parsed,new ArrayList<>(wordTimings),overlap);
+        Status status=parsed.isEmpty() && sortedWords.isEmpty()?Status.EMPTY:Status.PARSED;
+        return new Lyrics(status,parsed,sortedWords,overlap);
     }
 
     public static List<Word> parseWords(String officialWordText){
@@ -112,6 +118,7 @@ public final class MusicLyrics {
             words.add(new Word(start,end,text(parts[2],MAX_LINE_CHARS)));
             if(words.size()>MAX_WORDS)throw new IllegalArgumentException("Too many word timings");
         }
+        words.sort((a,b)->Long.compare(a.startMs(),b.startMs())); // stable chronological projection
         return Collections.unmodifiableList(words);
     }
 
@@ -125,7 +132,8 @@ public final class MusicLyrics {
         if(!digits(secondsText,1,2) || !digits(fraction,0,3))return null;
         long minutesValue=Long.parseLong(minutes),secondsValue=Long.parseLong(secondsText);
         if(secondsValue>59)return null;
-        long millis=dot<0?0:Long.parseLong((fraction+"00").substring(0,2))*10L;
+        // LRC 1/2/3 fractional digits carry 100/10/1 millisecond precision.
+        long millis=dot<0?0:Long.parseLong((fraction+"000").substring(0,3));
         long total=minutesValue*60000L+secondsValue*1000L+millis;
         if(total>MAX_TIME_MS)throw new IllegalArgumentException("Lyric time out of range");
         return total;

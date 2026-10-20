@@ -381,14 +381,14 @@ public final class BridgeMessages {
             int start=index;
             if(peek('-'))index++;
             if(index>=text.length())throw invalid("bad number");
-            if(peek('0')){index++;if(index<text.length() && Character.isDigit(text.charAt(index)))throw invalid("leading zero");}
+            if(peek('0')){index++;if(index<text.length() && asciiDigit(text.charAt(index)))throw invalid("leading zero");}
             else{
-                if(!Character.isDigit(text.charAt(index)))throw invalid("bad number");
-                while(index<text.length() && Character.isDigit(text.charAt(index)))index++;
+                if(!asciiDigit(text.charAt(index)))throw invalid("bad number");
+                while(index<text.length() && asciiDigit(text.charAt(index)))index++;
             }
             boolean integral=true;
-            if(peek('.')){integral=false;index++;if(index>=text.length() || !Character.isDigit(text.charAt(index)))throw invalid("bad fraction");while(index<text.length() && Character.isDigit(text.charAt(index)))index++;}
-            if(peek('e') || peek('E')){integral=false;index++;if(peek('+') || peek('-'))index++;if(index>=text.length() || !Character.isDigit(text.charAt(index)))throw invalid("bad exponent");while(index<text.length() && Character.isDigit(text.charAt(index)))index++;}
+            if(peek('.')){integral=false;index++;if(index>=text.length() || !asciiDigit(text.charAt(index)))throw invalid("bad fraction");while(index<text.length() && asciiDigit(text.charAt(index)))index++;}
+            if(peek('e') || peek('E')){integral=false;index++;if(peek('+') || peek('-'))index++;if(index>=text.length() || !asciiDigit(text.charAt(index)))throw invalid("bad exponent");while(index<text.length() && asciiDigit(text.charAt(index)))index++;}
             String literal=text.substring(start,index);
             if(integral){
                 try{long value=Long.parseLong(literal);return new Value(ValueType.NUMBER,null,null,null,value,value,true,false);}
@@ -402,6 +402,8 @@ public final class BridgeMessages {
             if(!text.startsWith(literal,index))throw invalid("malformed literal");
             index+=literal.length();
         }
+        /** JSON numeric tokens permit ASCII 0-9, never Unicode decimal digits. */
+        private static boolean asciiDigit(char c){return c>='0' && c<='9';}
         private boolean peek(char c){return index<text.length() && text.charAt(index)==c;}
         private void skipWhitespace(){while(index<text.length()){char c=text.charAt(index);if(c==' '||c=='\t'||c=='\n'||c=='\r')index++;else break;}}
     }

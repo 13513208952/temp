@@ -32,6 +32,32 @@ public final class MailSearchTest {
         assertThrows(IllegalArgumentException.class,()->search("abc","",10));
         assertThrows(IllegalArgumentException.class,()->search("abc",new String(new char[65]).replace('\0','a'),10));
     }
+    @Test public void overlappingLiteralIsNotReEmittedAcrossReaderChunks(){
+        MailSearch.Result single=search(chunked("aaa",2),"aa",10,()->false);
+        assertEquals(1,single.matches().size());
+        assertEquals(0,single.matches().get(0).offset());
+
+        MailSearch.Result two=search(chunked("aaaa",2),"aa",10,()->false);
+        assertEquals(2,two.matches().size());
+        assertEquals(0,two.matches().get(0).offset());
+        assertEquals(2,two.matches().get(1).offset());
+        MailSearch.Result crossing=search(chunked("aaa",1),"aa",10,()->false);
+        assertEquals(1,crossing.matches().size());
+        assertEquals(0,crossing.matches().get(0).offset());
+    }
+    private static java.io.Reader chunked(String input,int chunkSize){
+        return new java.io.Reader(){
+            int at;
+            @Override public int read(char[] dest,int offset,int length){
+                if(at>=input.length())return -1;
+                int count=Math.min(Math.min(chunkSize,length),input.length()-at);
+                input.getChars(at,at+count,dest,offset);
+                at+=count;
+                return count;
+            }
+            @Override public void close(){}
+        };
+    }
     @Test public void pagingIsDeterministicAndNeverRereads(){
         MailSearch.Result result=search("x x x","x",10);
         MailSearch.Page page=MailSearch.page(result,0,2);

@@ -50,7 +50,7 @@ public final class MailSearch {
         List<Match> matches=new ArrayList<>();
         char[] buffer=new char[CHUNK_CHARS];
         StringBuilder window=new StringBuilder();
-        long consumed=0,windowStart=0;
+        long consumed=0,windowStart=0,nextEligibleOffset=0;
         boolean truncated=false;
         int read;
         while(true){
@@ -66,7 +66,10 @@ public final class MailSearch {
                 int index=window.indexOf(needle,searchFrom);
                 if(index<0)break;
                 long absolute=windowStart+index;
+                // A retained prefix may overlap the previous match; do not re-emit it.
+                if(absolute<nextEligibleOffset){searchFrom=index+1;continue;}
                 matches.add(new Match(absolute,snippet(window,index,needle.length())));
+                nextEligibleOffset=absolute+needle.length();
                 if(matches.size()>=maxResults){truncated=true;break;}
                 searchFrom=index+needle.length();
             }
