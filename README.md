@@ -5,7 +5,7 @@
 | 目录 | 内容 | HOST 验证 |
 | --- | --- | --- |
 | [`d02/`](d02/) | 首轮 42 个目标（36 Java + 6 运行资产）及审查修正后的最终版 | 36 classes / 129 tests / 0 failures |
-| [`d03/`](d03/) | 第二轮 25 个既有 Java 文件扩展（L49–L73） | 43 classes / 170 tests / 0 failures |
+| [`d03/`](d03/) | 第二轮 25 个既有 Java 文件扩展（L49–L73） | 43 classes / 180 tests / 0 failures |
 
 两轮均自带 `app/`、`context/`、`build.sh`、`evidence/` 与报告：
 

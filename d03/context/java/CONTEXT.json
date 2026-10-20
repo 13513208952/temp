@@ -3,13 +3,13 @@
   "files": [
     {
       "path": "app/src/main/java/io/github/rebrowser/ui/BrowserToolbar.java",
-      "sha256": "df202e6bc94788fb95b948a22ac5e7d39f7b6fd293b9f195bd4d814c3fc3626b",
-      "bytes": 7020
+      "sha256": "24ba0cb93cef0cc7f0cefaba4c78a5b84dc1e2430e69b9da6bdcdcba3f34877b",
+      "bytes": 8446
     },
     {
       "path": "app/src/main/java/io/github/rebrowser/bootstrap/ComponentGate.java",
-      "sha256": "fa92aba18dbd8c6c51ef098f09bc6f39534bf5c40037e96349bcee7b345dfe47",
-      "bytes": 6846
+      "sha256": "65a05b709ece3590d44020b43bb934abc060e5d9fdcb7c07a777300aa405e562",
+      "bytes": 7973
     },
     {
       "path": "app/src/main/java/io/github/rebrowser/bootstrap/ProcessRole.java",
@@ -32,5 +32,6 @@
       "bytes": 3911
     }
   ],
-  "note": " 2026-10-20 D03: HistoryAdapter/DownloadsAdapter/SettingsSections were extended by this round and therefore live in app/ (not context/)."
+  "note": " 2026-10-20 D03: HistoryAdapter/DownloadsAdapter/SettingsSections were extended by this round and therefore live in app/ (not context/). 2026-10-20 D03 verification: context synced to ReBrowser R49 4f42f4c (additive API changes only).",
+  "sourceCommit": "4f42f4c36385b4a5d7833820cf4d95324b2a086b"
 }
