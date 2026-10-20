@@ -44,6 +44,8 @@ public final class HistoryActivity extends Activity {
     private ListView list;
     private HistoryAdapter adapter;
     private BrowserToolbar.Binding binding;
+    private Actions actions;
+    private Object pageFrame;
 
     @Override protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -69,7 +71,7 @@ public final class HistoryActivity extends Activity {
         BrowserToolbar.main();
         if(binding==null || actions==null)throw new IllegalArgumentException("Missing native history binding");
         binding.check();
-        this.binding=binding;
+        this.binding=binding;this.actions=actions;this.pageFrame=new Object();
         adapter.bind(binding,pageRevision,rows,new HistoryAdapter.Actions(){
             public void open(HistoryAdapter.Row row,long revision){actions.open(row,revision);}
             public void retain(HistoryAdapter.Row row,long revision){actions.retain(row,revision);}
@@ -80,7 +82,7 @@ public final class HistoryActivity extends Activity {
 
     public void showUnavailable(String reason){
         BrowserToolbar.main();
-        adapter.unbind();binding=null;
+        adapter.unbind();binding=null;actions=null;pageFrame=null;
         status.setText(reason==null || reason.isEmpty()?"未连接原生历史窗口":"历史不可用：" + reason);
         list.setAdapter(adapter);
     }
@@ -89,14 +91,21 @@ public final class HistoryActivity extends Activity {
     public void requestQuery(Period period,boolean pauseWrites,Actions actions){
         BrowserToolbar.main();
         BrowserToolbar.Binding captured=binding;
-        if(captured==null || actions==null)throw new IllegalStateException("History window is not connected");
-        captured.check();
-        actions.changeQuery(new QueryIntent(period,pauseWrites,adapter));
+        final Object expectedFrame=pageFrame;
+        if(captured==null || actions==null || this.actions!=actions || expectedFrame==null)
+            throw new IllegalStateException("History window is not connected");
+        BrowserToolbar.IntentOutcome outcome=BrowserToolbar.invokeNativeIntent(()->{
+            captured.check();
+            if(binding!=captured || this.actions!=actions || pageFrame!=expectedFrame)return;
+            actions.changeQuery(new QueryIntent(period,pauseWrites,expectedFrame));
+        });
+        if(outcome==BrowserToolbar.IntentOutcome.CALLBACK_UNKNOWN && pageFrame==expectedFrame)
+            status.setText("历史查询结果未知，请重新读取");
     }
 
     @Override protected void onDestroy(){
         if(adapter!=null)adapter.retire();
-        binding=null;
+        binding=null;actions=null;pageFrame=null;
         super.onDestroy();
     }
 

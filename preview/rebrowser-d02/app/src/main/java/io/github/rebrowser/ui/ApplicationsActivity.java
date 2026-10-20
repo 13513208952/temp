@@ -41,11 +41,12 @@ public final class ApplicationsActivity extends Activity {
         }
     }
 
-    private final LinearLayout content=new LinearLayout(this);
+    private LinearLayout content;
     private BrowserToolbar.Binding binding;private Object frame;
 
     @Override protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        content=new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         setContentView(new ScrollView(this){{addView(content);}});
         render(null,null);

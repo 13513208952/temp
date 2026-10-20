@@ -91,6 +91,7 @@ public final class OfflineMailActivity extends Activity {
         ownerThread();
         if(binding==null || page==null || actions==null)throw new IllegalArgumentException("Missing native offline mail binding");
         binding.check();
+        scrubVisibleRows();
         this.binding=binding;this.page=page;this.actions=actions;
         adapter.update(page);
         status.setText(page.rows().isEmpty()?"没有离线邮件":"离线邮件为只读展示；正文仅纯文本");
@@ -99,25 +100,65 @@ public final class OfflineMailActivity extends Activity {
             if(literal.isEmpty() || literal.length()>MAX_SEARCH_CHARS)return false;
             BrowserToolbar.Binding captured=this.binding;
             if(captured==null)return false;
-            BrowserToolbar.invokeNativeIntent(()->{captured.check();actions.search(literal,50,page.revision());});
+            BrowserToolbar.invokeNativeIntent(()->{
+                captured.check();
+                if(captured!=this.binding || this.page!=page || this.actions!=actions)return;
+                actions.search(literal,50,page.revision());
+            });
             return true;
         });
     }
 
     public void showUnavailable(String reason){
         ownerThread();
+        scrubVisibleRows();
         binding=null;page=null;actions=null;adapter.update(null);
+        search.setOnEditorActionListener(null);search.setText("");
         status.setText(reason==null || reason.isEmpty()?"未连接原生离线邮件窗口":"离线邮件不可用：" + reason);
     }
 
-    /** Plain-text body projection; never HTML and never a live account view. */
-    public void showBodyText(String subject,String plainText){
+    /**
+     * Late body results are accepted ONLY for the exact still-current page, binding and row.
+     * A title or a URL is never sufficient to reidentify the private account or message.
+     */
+    public boolean showBodyText(BrowserToolbar.Binding expectedBinding,Page expectedPage,Object exactRowToken,
+                                String subject,String plainText){
         ownerThread();
-        if(subject==null || plainText==null)throw new IllegalArgumentException("Missing body text");
+        if(expectedBinding==null || expectedPage==null || exactRowToken==null
+                || binding!=expectedBinding || page!=expectedPage || actions==null)return false;
+        try{expectedBinding.check();}catch(SecurityException | IllegalStateException stale){return false;}
+        boolean exactRowPresent=false;
+        for(MailRow row:expectedPage.rows())if(row.token()==exactRowToken){exactRowPresent=true;break;}
+        if(!exactRowPresent)return false;
         status.setText(text(subject,512)+"\n"+text(plainText,64*1024));
+        return true;
     }
 
-    @Override protected void onDestroy(){adapter.update(null);binding=null;page=null;actions=null;super.onDestroy();}
+    private void scrubVisibleRows(){
+        if(list==null)return;
+        for(int i=0;i<list.getChildCount();i++){
+            View child=list.getChildAt(i);
+            Object tag=child.getTag();
+            if(!(tag instanceof View[]))continue;
+            View[] parts=(View[])tag;
+            if(parts.length!=4)continue;
+            if(parts[0] instanceof TextView)((TextView)parts[0]).setText("");
+            if(parts[1] instanceof TextView)((TextView)parts[1]).setText("");
+            for(int k=2;k<4;k++)if(parts[k] instanceof Button){
+                Button button=(Button)parts[k];button.setEnabled(false);
+                button.setOnClickListener(null);button.setContentDescription(null);
+            }
+        }
+    }
+
+    @Override protected void onDestroy(){
+        scrubVisibleRows();
+        if(list!=null)list.setAdapter(null);
+        adapter.update(null);binding=null;page=null;actions=null;
+        if(search!=null){search.setOnEditorActionListener(null);search.setText("");}
+        if(status!=null)status.setText("");
+        super.onDestroy();
+    }
 
     private final class Adapter extends BaseAdapter {
         private List<MailRow> rows=Collections.emptyList();

@@ -57,11 +57,12 @@ public final class SubapplicationSettingsActivity extends Activity {
         public long revision(){return revision;}
     }
 
-    private final LinearLayout content=new LinearLayout(this);
+    private LinearLayout content;
     private BrowserToolbar.Binding binding;private Object frame;
 
     @Override protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        content=new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         setContentView(new ScrollView(this){{addView(content);}});
         TextView empty=new TextView(this);empty.setText("未连接原生子应用设置窗口");content.addView(empty);

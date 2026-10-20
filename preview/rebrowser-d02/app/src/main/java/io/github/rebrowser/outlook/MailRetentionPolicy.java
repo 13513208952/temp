@@ -31,6 +31,8 @@ public final class MailRetentionPolicy {
         if(contentClass==ContentClass.DERIVED_UNKNOWN)return Decision.UNKNOWN_KEEP;
         if(Boolean.TRUE.equals(observation.referencedByPendingWork))return Decision.KEEP;
         if(Boolean.TRUE.equals(observation.dependentsPresent))return Decision.KEEP;
+        // Unknown references or unfinished work must never be reinterpreted as absent.
+        if(observation.referencedByPendingWork==null || observation.dependentsPresent==null)return Decision.UNKNOWN_KEEP;
         if(Boolean.TRUE.equals(observation.uniqueOriginalAvailable))return Decision.RECLAIM_CANDIDATE;
         return Decision.UNKNOWN_KEEP; // missing provenance/dependent facts are never "safe to reclaim"
     }

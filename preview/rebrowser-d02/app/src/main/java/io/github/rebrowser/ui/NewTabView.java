@@ -106,7 +106,7 @@ public final class NewTabView extends LinearLayout {
         BrowserToolbar.main();
         if(binding==null || model==null || actions==null)throw new IllegalArgumentException("Missing new-tab binding");
         binding.check();
-        unbind();
+        clearBinding(false); // rebind preserves the explicitly supplied background
         this.binding=binding;this.actions=actions;
         final Object current=new Object();frame=current;
         for(SearchEngines.Provider provider:Model.providers()){
@@ -136,11 +136,12 @@ public final class NewTabView extends LinearLayout {
         rendered.add(manage);
     }
 
-    public void unbind(){
-        BrowserToolbar.main();
+    public void unbind(){BrowserToolbar.main();clearBinding(true);}
+    private void clearBinding(boolean discardArtwork){
         frame=null;binding=null;actions=null;
         searchRow.removeAllViews();shortcutRow.removeAllViews();rendered.clear();
         setEmpty(true);
+        if(discardArtwork)background.setImageDrawable(null); // release retired private artwork
     }
     @Override protected void onDetachedFromWindow(){unbind();super.onDetachedFromWindow();}
 

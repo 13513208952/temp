@@ -193,6 +193,15 @@ public final class BridgeMessages {
 
     public static Message parse(String utf8Text){
         if(utf8Text==null)throw invalid("missing envelope");
+        // String.getBytes(UTF_8) silently REPLACES unpaired UTF-16 surrogates.
+        // Reject them before encoding so malformed caller input cannot be laundered.
+        for(int i=0;i<utf8Text.length();i++){
+            char c=utf8Text.charAt(i);
+            if(Character.isHighSurrogate(c)){
+                if(++i>=utf8Text.length() || !Character.isLowSurrogate(utf8Text.charAt(i)))
+                    throw invalid("invalid UTF-16");
+            }else if(Character.isLowSurrogate(c))throw invalid("invalid UTF-16");
+        }
         byte[] bytes=utf8Text.getBytes(StandardCharsets.UTF_8);
         if(bytes.length>MAX_ENVELOPE_BYTES)throw invalid("envelope too large");
         return parse(bytes);
@@ -353,7 +362,8 @@ public final class BridgeMessages {
                         case 'u':
                             if(index+4>text.length())throw invalid("bad unicode escape");
                             int code=0;
-                            for(int i=0;i<4;i++){int digit=Character.digit(text.charAt(index+i),16);if(digit<0)throw invalid("bad unicode escape");code=(code<<4)|digit;}
+                            for(int i=0;i<4;i++){char h=text.charAt(index+i);
+                                int digit=h>='0'&&h<='9'?h-'0':h>='a'&&h<='f'?h-'a'+10:h>='A'&&h<='F'?h-'A'+10:-1;if(digit<0)throw invalid("bad unicode escape");code=(code<<4)|digit;}
                             index+=4;out.append((char)code);break;
                         default:throw invalid("unsupported escape");
                     }

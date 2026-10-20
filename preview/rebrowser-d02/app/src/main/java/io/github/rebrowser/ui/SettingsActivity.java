@@ -41,11 +41,12 @@ public final class SettingsActivity extends Activity {
         public static List<SettingsSections.Section> sections(){return SettingsSections.sections();}
     }
 
-    private final LinearLayout content=new LinearLayout(this);
+    private LinearLayout content;
     private BrowserToolbar.Binding binding;private Object frame;
 
     @Override protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        content=new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         ScrollView scroll=new ScrollView(this);scroll.addView(content);
         setContentView(scroll);

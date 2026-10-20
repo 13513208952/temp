@@ -19,6 +19,16 @@ public final class MailRetentionPolicyTest {
         assertEquals(MailRetentionPolicy.Decision.KEEP,MailRetentionPolicy.classify(MailRetentionPolicy.ContentClass.DERIVED_REBUILDABLE,new MailRetentionPolicy.Observation(true,true,false)));
         assertEquals(MailRetentionPolicy.Decision.KEEP,MailRetentionPolicy.classify(MailRetentionPolicy.ContentClass.DERIVED_REBUILDABLE,new MailRetentionPolicy.Observation(true,false,true)));
     }
+    @Test public void unknownDependentsOrPendingWorkNeverBecomesReclaimCandidate(){
+        assertEquals(MailRetentionPolicy.Decision.UNKNOWN_KEEP,MailRetentionPolicy.classify(
+                MailRetentionPolicy.ContentClass.DERIVED_REBUILDABLE,new MailRetentionPolicy.Observation(true,null,false)));
+        assertEquals(MailRetentionPolicy.Decision.UNKNOWN_KEEP,MailRetentionPolicy.classify(
+                MailRetentionPolicy.ContentClass.DERIVED_REBUILDABLE,new MailRetentionPolicy.Observation(true,false,null)));
+        assertEquals(MailRetentionPolicy.Decision.UNKNOWN_KEEP,MailRetentionPolicy.classify(
+                MailRetentionPolicy.ContentClass.DERIVED_REBUILDABLE,new MailRetentionPolicy.Observation(true,null,null)));
+        assertEquals(MailRetentionPolicy.Decision.KEEP,MailRetentionPolicy.classify(
+                MailRetentionPolicy.ContentClass.DERIVED_REBUILDABLE,new MailRetentionPolicy.Observation(true,true,null)));
+    }
     @Test public void labelsStateCandidateNotCompletion(){
         assertTrue(MailRetentionPolicy.label(MailRetentionPolicy.Decision.RECLAIM_CANDIDATE).contains("待原生"));
         assertThrows(IllegalArgumentException.class,()->MailRetentionPolicy.label(null));

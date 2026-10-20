@@ -35,11 +35,13 @@ public final class LyricOverlayWindow extends FrameLayout {
         public void move(int pointerCount,int x,int y){
             if(!active)throw new IllegalStateException("Drag not started");
             if(cancelled)return;
-            if(pointerCount!=1){cancelled=true;active=false;return;}
+            if(pointerCount!=1){cancel();return;}
             originX=clampX(originX+(coord(x)-startX));originY=clampY(originY+(coord(y)-startY));
             startX=coord(x);startY=coord(y);
         }
         public void end(){if(!active)throw new IllegalStateException("Drag not started");active=false;}
+        /** Cancelling is idempotent even after a second finger already aborted the drag. */
+        public void cancel(){cancelled=true;active=false;}
         public boolean cancelled(){return cancelled;}
         public boolean active(){return active;}
         public int x(){return originX;}
@@ -96,7 +98,8 @@ public final class LyricOverlayWindow extends FrameLayout {
     /** Called ONLY by the native window owner after it actually applied a drag origin. */
     public void showAppliedOrigin(int appliedX,int appliedY){
         ownerThread();
-        if(frame==null)return;
+        if(frame==null || binding==null)return;
+        try{binding.check();}catch(SecurityException | IllegalStateException stale){return;}
         x=appliedX;y=appliedY;
         setTranslationX(x*getResources().getDisplayMetrics().density);
         setTranslationY(y*getResources().getDisplayMetrics().density);
@@ -114,18 +117,33 @@ public final class LyricOverlayWindow extends FrameLayout {
 
     /** Local drag intent only; global/system window placement remains with the native owner. */
     boolean handleTouch(MotionEvent event){
-        DragModel model=drag;BrowserToolbar.Binding captured=binding;
-        if(model==null || captured==null || frame==null)return false;
+        DragModel model=drag;BrowserToolbar.Binding captured=binding;Object exactFrame=frame;
+        if(event==null || model==null || captured==null || exactFrame==null)return false;
         try{
+            captured.check();
+            if(frame!=exactFrame || binding!=captured)return false;
             switch(event.getActionMasked()){
-                case MotionEvent.ACTION_DOWN:model.start(event.getPointerCount(),x,y,(int)event.getX(),(int)event.getY());return true;
-                case MotionEvent.ACTION_MOVE:model.move(event.getPointerCount(),(int)event.getX(),(int)event.getY());return true;
-                case MotionEvent.ACTION_UP:model.end();setContentDescription(model.cancelled()?"拖动已取消":"拖动待原生应用（" + model.x() + "," + model.y() + "）");return true;
-                case MotionEvent.ACTION_CANCEL:model.end();return true;
+                case MotionEvent.ACTION_DOWN:
+                    model.start(event.getPointerCount(),x,y,(int)event.getX(),(int)event.getY());
+                    return true;
+                case MotionEvent.ACTION_POINTER_DOWN:
+                case MotionEvent.ACTION_POINTER_UP:
+                    model.cancel();return true;
+                case MotionEvent.ACTION_MOVE:
+                    if(!model.active())return true; // a cancelled multi-touch gesture stays cancelled
+                    model.move(event.getPointerCount(),(int)event.getX(),(int)event.getY());
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    if(!model.active())return true;
+                    model.end();
+                    setContentDescription(model.cancelled()?"拖动已取消":"拖动待原生应用（" + model.x() + "," + model.y() + "）");
+                    return true;
+                case MotionEvent.ACTION_CANCEL:
+                    model.cancel();return true;
                 default:return false;
             }
         }catch(RuntimeException invalidGesture){
-            model.end();
+            model.cancel(); // never call end() on an already cancelled/inactive gesture
             return false;
         }
     }

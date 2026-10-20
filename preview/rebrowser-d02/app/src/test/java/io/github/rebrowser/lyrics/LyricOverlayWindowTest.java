@@ -27,6 +27,20 @@ public final class LyricOverlayWindowTest {
         assertEquals(50,model.y());
         assertFalse(model.active());
     }
+    @Test public void abortingMultiTouchIsIdempotentAndCannotReviveDrag(){
+        LyricOverlayWindow.DragModel model=new LyricOverlayWindow.DragModel(1080,2400,360,200);
+        model.start(1,0,0,10,10);
+        model.move(2,80,90);
+        model.cancel(); // synthetic ACTION_POINTER_UP/ACTION_CANCEL after already cancelled
+        assertTrue(model.cancelled());
+        assertFalse(model.active());
+        assertThrows(IllegalStateException.class,()->model.end()); // UI must NOT call end
+        model.start(1,0,0,15,15);
+        assertTrue(model.active());
+        assertFalse(model.cancelled());
+        model.cancel();model.cancel();
+        assertFalse(model.active());
+    }
     @Test public void invalidGeometryAndUnstartedMoveRejected(){
         assertThrows(IllegalArgumentException.class,()->new LyricOverlayWindow.DragModel(100,100,200,50));
         assertThrows(IllegalArgumentException.class,()->new LyricOverlayWindow.DragModel(0,100,10,10));

@@ -23,11 +23,12 @@ public final class OutlookActivity extends Activity {
     }
     public static final int MAX_ACCOUNT_LABEL_CHARS = 128;
 
-    private final LinearLayout content=new LinearLayout(this);
+    private LinearLayout content;
     private BrowserToolbar.Binding binding;private Object frame;
 
     @Override protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        content=new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         setContentView(content);
         render(AccountObservation.UNKNOWN,OfficialMailEntry.fixedEntries(),null);
@@ -86,7 +87,7 @@ public final class OutlookActivity extends Activity {
 
     private void dispatch(Object expected,Runnable intent){
         BrowserToolbar.Binding captured=binding;
-        if(captured==null || actionsNull(captured) || frame!=expected)return;
+        if(captured==null || frame!=expected)return;
         BrowserToolbar.IntentOutcome outcome=BrowserToolbar.invokeNativeIntent(()->{
             captured.check();
             if(frame!=expected || captured!=binding)return;
@@ -94,7 +95,6 @@ public final class OutlookActivity extends Activity {
         });
         if(outcome==BrowserToolbar.IntentOutcome.CALLBACK_UNKNOWN && frame==expected)setTitle("操作结果未知，请核对当前邮箱状态");
     }
-    private boolean actionsNull(BrowserToolbar.Binding captured){return captured==null;}
-    private int dp(int value){return Math.round(value*getResources().getDisplayMetrics().density);}
+        private int dp(int value){return Math.round(value*getResources().getDisplayMetrics().density);}
     private static void ownerThread(){if(android.os.Looper.myLooper()!=android.os.Looper.getMainLooper())throw new IllegalStateException("Native UI owner thread required");}
 }

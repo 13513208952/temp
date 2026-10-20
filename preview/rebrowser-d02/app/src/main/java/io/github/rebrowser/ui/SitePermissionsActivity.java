@@ -61,11 +61,12 @@ public final class SitePermissionsActivity extends Activity {
         public long revision(){return revision;}
     }
 
-    private final LinearLayout content=new LinearLayout(this);
+    private LinearLayout content;
     private BrowserToolbar.Binding binding;private Object frame;
 
     @Override protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        content=new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         setContentView(new ScrollView(this){{addView(content);}});
         TextView empty=new TextView(this);empty.setText("网站权限未读取；不显示其他范围站点");content.addView(empty);

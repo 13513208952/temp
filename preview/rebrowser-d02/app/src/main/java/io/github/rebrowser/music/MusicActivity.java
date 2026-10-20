@@ -43,12 +43,13 @@ public final class MusicActivity extends Activity {
 
     private TextView title,artist,state,lyrics;
     private SeekBar progress;
-    private final LinearLayout queue=new LinearLayout(this);
+    private LinearLayout queue;
     private BrowserToolbar.Binding binding;
     private long durationMs=-1;
 
     @Override protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        queue=new LinearLayout(this);
         LinearLayout root=new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         title=new TextView(this);title.setTextSize(20);
@@ -134,6 +135,11 @@ public final class MusicActivity extends Activity {
             empty.setText("队列未读取");
             queue.addView(empty);
         }
+    }
+
+    @Override protected void onDestroy(){
+        unbind();
+        super.onDestroy();
     }
 
     private void intent(java.util.function.Consumer<Actions> action){

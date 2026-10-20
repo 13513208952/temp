@@ -44,6 +44,18 @@ public final class BridgeMessagesTest {
         assertThrows(IllegalArgumentException.class,()->BridgeMessages.parse(hello("a\u0001b")));
         assertThrows(IllegalArgumentException.class,()->BridgeMessages.parse(hello("\\ud800")));
     }
+    @Test public void stringApiRejectsUnpairedUtf16BeforeEncoderReplacement(){
+        String loneHigh=String.valueOf((char)0xD800);
+        String loneLow=String.valueOf((char)0xDC00);
+        assertThrows(IllegalArgumentException.class,()->BridgeMessages.parse(hello(loneHigh)));
+        assertThrows(IllegalArgumentException.class,()->BridgeMessages.parse(hello(loneLow)));
+        assertEquals(BridgeMessages.Kind.HELLO,BridgeMessages.parse(hello("\\uD83D\\uDE00")).kind());
+    }
+    @Test public void unicodeEscapesAcceptAsciiHexOnly(){
+        String malformed=hello("\\u" + "\u0661" + "234"); // Arabic-Indic 1 is not ASCII 1
+        assertThrows(IllegalArgumentException.class,()->BridgeMessages.parse(malformed));
+        assertEquals("a",BridgeMessages.parse(hello("\\u0061")).hello().documentInstanceHint());
+    }
     @Test public void oversizeDepthAndArrayBoundsAreEnforced(){
         StringBuilder deep=new StringBuilder();
         for(int i=0;i<20;i++)deep.append('[');
