@@ -22,11 +22,24 @@ public final class SitePermissionGroupsTest {
         assertEquals("p2",groups.get(1).partitionLabel());
     }
     @Test public void revokeOfferAndExpiryLabelsStayExplicit(){
-        SitePermissionsActivity.Row offered=new SitePermissionsActivity.Row(new Object(),"a.example","p",SitePermissionsActivity.Capability.CAMERA,SitePermissionsActivity.Expiry.TIMED,120_000,SitePermissionsActivity.OsState.GRANTED);
+        SitePermissionsActivity.Row offered=new SitePermissionsActivity.Row(new Object(),"a.example","p",SitePermissionsActivity.Capability.CAMERA,SitePermissionsActivity.Expiry.TIMED,120_000,SitePermissionsActivity.OsState.GRANTED,true);
         SitePermissionsActivity.Row noRevoke=new SitePermissionsActivity.Row(new Object(),"b.example","p",SitePermissionsActivity.Capability.CAMERA,SitePermissionsActivity.Expiry.UNKNOWN,0,SitePermissionsActivity.OsState.UNKNOWN,false);
         assertTrue(offered.nativeRevokeOffered());
         assertFalse(noRevoke.nativeRevokeOffered());
         assertTrue(offered.label().contains("约2分钟"));
         assertTrue(SitePermissionsActivity.expiryLabel(SitePermissionsActivity.Expiry.EXPIRED,0).contains("不代表传感器已停"));
+    }
+    @Test public void noPermissionsChangeIsInferredWithoutAnExplicitOffer(){
+        SitePermissionsActivity.Row defaultRow=row("a.example","p",SitePermissionsActivity.Capability.CAMERA);
+        for(SitePermissionsActivity.RequestedChange action:SitePermissionsActivity.RequestedChange.values())
+            assertFalse(defaultRow.nativeOffers(action));
+        SitePermissionsActivity.Row explicit=new SitePermissionsActivity.Row(new Object(),"a.example","p",
+                SitePermissionsActivity.Capability.CAMERA,SitePermissionsActivity.Expiry.NONE,0,
+                SitePermissionsActivity.OsState.UNKNOWN,
+                java.util.EnumSet.of(SitePermissionsActivity.RequestedChange.GRANT,SitePermissionsActivity.RequestedChange.RESET));
+        assertTrue(explicit.nativeOffers(SitePermissionsActivity.RequestedChange.GRANT));
+        assertTrue(explicit.nativeOffers(SitePermissionsActivity.RequestedChange.RESET));
+        assertFalse(explicit.nativeRevokeOffered());
+        assertThrows(IllegalArgumentException.class,()->explicit.nativeOffers(null));
     }
 }

@@ -118,10 +118,15 @@ public final class BookmarkView extends ScrollView {
             }
             Map<Object,List<Node>> children=new IdentityHashMap<>();
             for(Node node:copy){
-                if(node.parentToken()!=null && !byToken.containsKey(node.parentToken()))
-                    throw new IllegalArgumentException("Unknown native bookmark parent");
+                if(node.parentToken()!=null){
+                    Node parent=byToken.get(node.parentToken());
+                    if(parent==null)throw new IllegalArgumentException("Unknown native bookmark parent");
+                    if(parent.kind()!=Kind.FOLDER)throw new IllegalArgumentException("A bookmark cannot own children");
+                }
                 if(node.parentToken()==node.token())throw new IllegalArgumentException("Native bookmark self-parent");
-                children.computeIfAbsent(node.parentToken(),key->new ArrayList<>()).add(node);
+                List<Node> siblings=children.computeIfAbsent(node.parentToken(),key->new ArrayList<>());
+                if(siblings.size()>=MAX_ROWS)throw new IllegalArgumentException("Native bookmark folder exceeds page budget");
+                siblings.add(node);
             }
             for(Node node:copy){
                 int depth=0;Object cursor=node.parentToken();Set<Object> seen=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -162,8 +167,10 @@ public final class BookmarkView extends ScrollView {
             String needle=literal.trim().toLowerCase(Locale.ROOT);
             List<Row> matched=new ArrayList<>();
             for(Node node:nodes){
-                if(node.title().toLowerCase(Locale.ROOT).contains(needle))
+                if(node.title().toLowerCase(Locale.ROOT).contains(needle)){
+                    if(matched.size()>=MAX_ROWS)throw new IllegalArgumentException("Bookmark search result exceeds page budget");
                     matched.add(node.row(pathLabel(node.parentToken())));
+                }
             }
             return Collections.unmodifiableList(matched);
         }

@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.EnumSet;
 
 /**
  * Native READ-ONLY site-permission page, grouped by the supplied site identity (partition+host)
@@ -30,16 +31,31 @@ public final class SitePermissionsActivity extends Activity {
     public static final class Row {
         private final Object token;private final String hostLabel,partitionLabel;private final Capability capability;
         private final Expiry expiry;private final long expiresInMs;private final OsState osState;
-        private final boolean nativeRevokeOffered;
+        private final Set<RequestedChange> nativeOffered;
         public Row(Object token,String hostLabel,String partitionLabel,Capability capability,Expiry expiry,long expiresInMs,OsState osState){
-            this(token,hostLabel,partitionLabel,capability,expiry,expiresInMs,osState,true);
+            // Absence of a native action offer never enables any permission change.
+            this(token,hostLabel,partitionLabel,capability,expiry,expiresInMs,osState,
+                    Collections.<RequestedChange>emptySet());
         }
         public Row(Object token,String hostLabel,String partitionLabel,Capability capability,Expiry expiry,long expiresInMs,OsState osState,boolean nativeRevokeOffered){
-            if(token==null || capability==null || expiry==null || osState==null)throw new IllegalArgumentException("Incomplete permission row");
+            this(token,hostLabel,partitionLabel,capability,expiry,expiresInMs,osState,
+                    nativeRevokeOffered?EnumSet.of(RequestedChange.REVOKE):Collections.<RequestedChange>emptySet());
+        }
+        /** Only the exact native owner supplies an explicit per-action offer. */
+        public Row(Object token,String hostLabel,String partitionLabel,Capability capability,Expiry expiry,long expiresInMs,
+                   OsState osState,Set<RequestedChange> nativeOffered){
+            if(token==null || capability==null || expiry==null || osState==null || nativeOffered==null)
+                throw new IllegalArgumentException("Incomplete permission row");
+            EnumSet<RequestedChange> offered=EnumSet.noneOf(RequestedChange.class);
+            for(RequestedChange change:nativeOffered){
+                if(change==null)throw new IllegalArgumentException("Null permission action offer");
+                offered.add(change);
+            }
+            this.nativeOffered=Collections.unmodifiableSet(offered);
             this.token=token;this.hostLabel=host(hostLabel);this.partitionLabel=host(partitionLabel);
             if(expiry!=Expiry.TIMED)this.expiresInMs=expressUnknown(expiresInMs);
             else{if(expiresInMs<0 || expiresInMs>365L*24*60*60*1000)throw new IllegalArgumentException("Invalid expiry");this.expiresInMs=expiresInMs;}
-            this.capability=capability;this.expiry=expiry;this.osState=osState;this.nativeRevokeOffered=nativeRevokeOffered;
+            this.capability=capability;this.expiry=expiry;this.osState=osState;
         }
         public Object token(){return token;}
         public String hostLabel(){return hostLabel;}
@@ -48,7 +64,12 @@ public final class SitePermissionsActivity extends Activity {
         public Expiry expiry(){return expiry;}
         public long expiresInMs(){return expiresInMs;}
         public OsState osState(){return osState;}
-        public boolean nativeRevokeOffered(){return nativeRevokeOffered;}
+        public boolean nativeRevokeOffered(){return nativeOffers(RequestedChange.REVOKE);}
+        public boolean nativeOffers(RequestedChange change){
+            if(change==null)throw new IllegalArgumentException("Missing action");
+            return nativeOffered.contains(change);
+        }
+        public Set<RequestedChange> offeredActions(){return nativeOffered;}
         public String label(){return hostLabel+" · "+capabilityLabel(capability)+" · "+expiryLabel(expiry,expiresInMs)+" · "+osLabel(osState);}
     }
     public interface Actions {
@@ -148,7 +169,7 @@ public final class SitePermissionsActivity extends Activity {
                 LinearLayout line=new LinearLayout(this);
                 line.setOrientation(LinearLayout.HORIZONTAL);
                 for(RequestedChange change:RequestedChange.values()){
-                    boolean offered=change!=RequestedChange.REVOKE || row.nativeRevokeOffered();
+                    boolean offered=row.nativeOffers(change);
                     boolean attempted=pending.contains(new AttemptKey(page.revision(),row.token(),change));
                     boolean enabled=offered && !attempted && binding!=null;
                     Button button=new Button(this);
@@ -167,7 +188,7 @@ public final class SitePermissionsActivity extends Activity {
 
     private void request(Row row,RequestedChange change){
         BrowserToolbar.Binding captured=binding;Actions owner=actions;Object expected=frame;Page currentPage=page;
-        if(captured==null || owner==null || currentPage==null || frame!=expected)return;
+        if(captured==null || owner==null || currentPage==null || frame!=expected || !row.nativeOffers(change))return;
         AttemptKey key=new AttemptKey(currentPage.revision(),row.token(),change);
         if(!pending.add(key))return; // consumed before the callback; unknown stays pending
         render();
